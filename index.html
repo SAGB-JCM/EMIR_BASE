@@ -17,6 +17,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /* Colores Institucionales */
+        :root {
+            --primary-color: #9C2348; /* Guinda */
+            --secondary-color: #A6802D; /* Dorado */
+            --accent-color: #1E5B4F; /* Verde Oscuro */
+            --success-color: #10B981; /* Verde Claro */
+            --danger-color: #EF4444; /* Rojo */
+        }
         .step-card {
             transition: all 0.3s ease;
         }
@@ -45,18 +53,30 @@
     <div class="container mx-auto px-4 py-8 max-w-6xl">
         
         <!-- Header -->
-        <header class="mb-8 text-center">
-            <h1 class="text-3xl font-bold text-blue-800 mb-2">
-                <i class="fa-solid fa-file-excel mr-2"></i>Automatización de Consolidación
+        <header class="mb-10 text-center flex flex-col items-center">
+            <img src="https://github.com/SAGB-JCM/EMIR_BASE/blob/main/Gemini_Generated_Image_gfdjv0gfdjv0gfdj.png?raw=true" alt="Logo" class="w-24 h-24 mb-4 rounded-md shadow-lg">
+            <h1 class="text-4xl font-bold text-[#9C2348] mb-2">
+                Consolidador de Matrices de Indicadores (EMIR)
             </h1>
-            <p class="text-gray-600">Procesa ZIPs, unifica Excels, consolida hojas y limpia datos (Réplica de Macros VBA)</p>
+            <p class="text-gray-600 max-w-3xl">Herramienta elaborada en el marco del contrato de prestación de servicios DC-620-2025 con el objetivo de consolidar las Matrices de Indicadores para Resultados de la Cuenta Pública 2024.</p>
         </header>
+
+        <!-- Instructions -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8 border-l-4 border-[#A6802D]">
+            <h2 class="font-bold text-lg mb-2 text-[#A6802D]"><i class="fa-solid fa-circle-info mr-2"></i>Instrucciones de Uso</h2>
+            <ol class="list-decimal list-inside text-gray-700 space-y-1">
+                <li>Cargue el archivo <strong>.zip</strong> que contiene los archivos Excel de la Cuenta Pública usando la <strong>Opción A</strong>.</li>
+                <li>Opcionalmente, use la <strong>Opción B</strong> para intentar descargar el archivo directamente desde la URL de Hacienda (puede fallar por seguridad).</li>
+                <li>Una vez cargado el archivo, presione el botón <strong>"Ejecutar Todo y Descargar"</strong> para realizar el proceso completo de forma automática.</li>
+                <li>Si lo prefiere, puede ejecutar cada paso del proceso de forma individual y descargar los resultados intermedios.</li>
+            </ol>
+        </div>
 
         <!-- Input Section -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Opción 1: Subir Local -->
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#9C2348] transition-colors">
                     <i class="fa-solid fa-upload text-4xl text-gray-400 mb-4"></i>
                     <h3 class="font-bold mb-2">Opción A: Subir ZIP Local</h3>
                     <input type="file" id="fileInput" accept=".zip" class="hidden" onchange="handleFileUpload(this)">
@@ -72,8 +92,8 @@
                     <div class="flex gap-2">
                         <input type="text" id="urlInput" 
                             value="https://www.cuentapublica.hacienda.gob.mx/work/models/CP/2024/tomo/III/E_MIR.zip"
-                            class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm" placeholder="https://...">
-                        <button onclick="handleUrlDownload()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+                            class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-[#1E5B4F] focus:border-[#1E5B4F]" placeholder="https://...">
+                        <button onclick="handleUrlDownload()" class="bg-[#1E5B4F] text-white px-4 py-2 rounded hover:bg-opacity-90 transition">
                             <i class="fa-solid fa-download"></i>
                         </button>
                     </div>
@@ -109,20 +129,34 @@
             </div>
         </div>
 
+        <!-- All-in-One Step -->
+        <div id="allInOneStep" class="hidden bg-white rounded-lg shadow-lg p-6 mb-8 border-t-4 border-[#9C2348]">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-[#9C2348]">Proceso Completo (Recomendado)</h2>
+                    <p class="text-gray-600 text-sm mt-1">Ejecuta todos los pasos necesarios (1, 2, 3, 3.1 y 4) y descarga el archivo final con un solo clic.</p>
+                </div>
+                <button id="runAllBtn" onclick="runAllSteps()" class="w-full md:w-auto bg-[#9C2348] text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-transform transform hover:scale-105 flex justify-center items-center gap-2 font-bold shadow-md hover:shadow-lg">
+                    <i class="fa-solid fa-rocket"></i>
+                    <span>Ejecutar Todo y Descargar</span>
+                </button>
+            </div>
+        </div>
+
         <!-- Processing Steps (Wizard) -->
-        <div id="processingSteps" class="hidden grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div id="processingSteps" class="hidden grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
             
             <!-- Step 1 -->
-            <div id="cardStep1" class="step-card bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+            <div id="cardStep1" class="step-card bg-white p-4 rounded-lg shadow border-l-4 border-[#9C2348]">
                 <div class="flex justify-between items-start mb-2">
                     <h3 class="font-bold text-lg">Paso 1</h3>
-                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Consolidar Libros</span>
+                    <span class="text-xs bg-red-100 text-[#9C2348] px-2 py-1 rounded">Consolidar Libros</span>
                 </div>
                 <p class="text-sm text-gray-600 mb-4">Une todos los archivos del ZIP en un solo libro de Excel.</p>
-                <button onclick="runStep1()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition flex justify-center items-center gap-2">
+                <button onclick="runStep1()" class="w-full bg-[#9C2348] text-white py-2 rounded hover:bg-opacity-90 transition flex justify-center items-center gap-2">
                     <span>Ejecutar</span>
                 </button>
-                <button id="dlStep1" onclick="downloadStep(1)" class="hidden mt-2 w-full border border-blue-600 text-blue-600 py-1 rounded hover:bg-blue-50 text-sm">
+                <button id="dlStep1" onclick="downloadStep(1)" class="hidden mt-2 w-full border border-[#9C2348] text-[#9C2348] py-1 rounded hover:bg-red-50 text-sm">
                     <i class="fa-solid fa-download"></i> Descargar
                 </button>
             </div>
@@ -131,7 +165,7 @@
             <div id="cardStep2" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-teal-500">
                 <div class="flex justify-between items-start mb-2">
                     <h3 class="font-bold text-lg">Paso 2</h3>
-                    <span class="text-xs bg-teal-100 text-teal-800 px-2 py-1 rounded">Pre-procesar Hojas</span>
+                    <span class="text-xs bg-teal-100 text-teal-800 px-2 py-1 rounded">Formato Relacional</span>
                 </div>
                 <p class="text-sm text-gray-600 mb-4">Limpia y transforma hojas (no "Ramo") a formato relacional.</p>
                 <button onclick="runStep2()" class="w-full bg-teal-600 text-white py-2 rounded hover:bg-teal-700 transition flex justify-center items-center gap-2">
@@ -143,46 +177,76 @@
             </div>
 
             <!-- Step 3 -->
-            <div id="cardStep3" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-purple-500">
+            <div id="cardStep3" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-indigo-500">
                 <div class="flex justify-between items-start mb-2">
                     <h3 class="font-bold text-lg">Paso 3</h3>
-                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Consolidar Hojas</span>
+                    <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded">Extraer Datos</span>
                 </div>
-                <p class="text-sm text-gray-600 mb-4">Une columnas A:T de todas las hojas en una sola hoja maestra.</p>
-                <button onclick="runStep3()" class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition flex justify-center items-center gap-2">
+                <p class="text-sm text-gray-600 mb-4">Extrae Eje, Programa, Objetivo y Clasificación Funcional.</p>
+                <button onclick="runStep3()" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition flex justify-center items-center gap-2">
                     <span>Ejecutar</span>
                 </button>
-                <button id="dlStep3" onclick="downloadStep(3)" class="hidden mt-2 w-full border border-purple-600 text-purple-600 py-1 rounded hover:bg-purple-50 text-sm">
+                <button id="dlStep3" onclick="downloadStep(3)" class="hidden mt-2 w-full border border-indigo-600 text-indigo-600 py-1 rounded hover:bg-indigo-50 text-sm">
+                    <i class="fa-solid fa-download"></i> Descargar
+                </button>
+            </div>
+
+            <!-- Step 3.1 -->
+            <div id="cardStep3_1" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-cyan-500">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="font-bold text-lg">Paso 3.1</h3>
+                    <span class="text-xs bg-cyan-100 text-cyan-800 px-2 py-1 rounded">Limpiar "Ramo"</span>
+                </div>
+                <p class="text-sm text-gray-600 mb-4">Limpia, recorta y rellena las hojas cuyo nombre empieza con "Ramo".</p>
+                <button onclick="runStep3_1()" class="w-full bg-cyan-600 text-white py-2 rounded hover:bg-cyan-700 transition flex justify-center items-center gap-2">
+                    <span>Ejecutar</span>
+                </button>
+                <button id="dlStep3_1" onclick="downloadStep('3.1')" class="hidden mt-2 w-full border border-cyan-600 text-cyan-600 py-1 rounded hover:bg-cyan-50 text-sm">
                     <i class="fa-solid fa-download"></i> Descargar
                 </button>
             </div>
 
             <!-- Step 4 -->
-            <div id="cardStep4" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-orange-500">
+            <div id="cardStep4" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-purple-500">
                 <div class="flex justify-between items-start mb-2">
                     <h3 class="font-bold text-lg">Paso 4</h3>
-                    <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">Descombinar</span>
+                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Unificar Hojas</span>
                 </div>
-                <p class="text-sm text-gray-600 mb-4">Elimina celdas combinadas en la hoja consolidada.</p>
-                <button onclick="runStep4()" class="w-full bg-orange-600 text-white py-2 rounded hover:bg-orange-700 transition flex justify-center items-center gap-2">
+                <p class="text-sm text-gray-600 mb-4">Une todas las hojas en dos grupos: Ramo y General.</p>
+                <button onclick="runStep4()" class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition flex justify-center items-center gap-2">
                     <span>Ejecutar</span>
                 </button>
-                <button id="dlStep4" onclick="downloadStep(4)" class="hidden mt-2 w-full border border-orange-600 text-orange-600 py-1 rounded hover:bg-orange-50 text-sm">
+                <button id="dlStep4" onclick="downloadStep(4)" class="hidden mt-2 w-full border border-purple-600 text-purple-600 py-1 rounded hover:bg-purple-50 text-sm">
                     <i class="fa-solid fa-download"></i> Descargar
                 </button>
             </div>
 
             <!-- Step 5 -->
-            <div id="cardStep5" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
+            <div id="cardStep5" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-orange-500">
                 <div class="flex justify-between items-start mb-2">
                     <h3 class="font-bold text-lg">Paso 5</h3>
+                    <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">Descombinar</span>
+                </div>
+                <p class="text-sm text-gray-600 mb-4">Elimina celdas combinadas en la hoja consolidada.</p>
+                <button onclick="runStep5()" class="hidden w-full bg-orange-600 text-white py-2 rounded hover:bg-orange-700 transition flex justify-center items-center gap-2">
+                    <span>Ejecutar</span>
+                </button>
+                <button id="dlStep5" onclick="downloadStep(5)" class="hidden mt-2 w-full border border-orange-600 text-orange-600 py-1 rounded hover:bg-orange-50 text-sm">
+                    <i class="fa-solid fa-download"></i> Descargar
+                </button>
+            </div>
+
+            <!-- Step 6 -->
+            <div id="cardStep6" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="font-bold text-lg">Paso 6</h3>
                     <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Rellenar Vacíos</span>
                 </div>
                 <p class="text-sm text-gray-600 mb-4">Rellena celdas vacías en Columnas A-F con el valor superior.</p>
-                <button onclick="runStep5()" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition flex justify-center items-center gap-2">
+                <button onclick="runStep6()" class="hidden w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition flex justify-center items-center gap-2">
                     <span>Ejecutar</span>
                 </button>
-                <button id="dlStep5" onclick="downloadStep(5)" class="hidden mt-2 w-full border border-green-600 text-green-600 py-1 rounded hover:bg-green-50 text-sm">
+                <button id="dlStep6" onclick="downloadStep(6)" class="hidden mt-2 w-full border border-green-600 text-green-600 py-1 rounded hover:bg-green-50 text-sm">
                     <i class="fa-solid fa-download"></i> Descargar Final
                 </button>
             </div>
@@ -197,9 +261,11 @@
             zipFiles: [], // Array of objects { name, data (arraybuffer) }
             wbStep1: null, // The workbook object after Step 1
             wbStep2: null, // The workbook object after Step 2
-            wbStep3: null, // The workbook object after Step 3
+            wbStep3: null, // The workbook object after Step 3,
+            wbStep3_1: null, // The workbook object after Step 3.1
             wbStep4: null, // The workbook object after Step 4
-            wbStep5: null  // The workbook object after Step 5
+            wbStep5: null, // The workbook object after Step 5
+            wbStep6: null  // The workbook object after Step 6
         };
 
         // === LOGGING UTILS ===
@@ -293,6 +359,7 @@
                 if (fileCount > 0) {
                     document.getElementById('previewSection').classList.remove('hidden');
                     document.getElementById('processingSteps').classList.remove('hidden');
+                    document.getElementById('allInOneStep').classList.remove('hidden');
                     log("ZIP procesado exitosamente. Listo para Paso 1.", 'success');
                 } else {
                     log("No se encontraron archivos .xls o .xlsx válidos en el ZIP.", 'error');
@@ -302,6 +369,49 @@
                 log("Error leyendo el ZIP: " + e.message, 'error');
             }
         }
+
+        // === ALL-IN-ONE PROCESS ===
+        async function runAllSteps() {
+            const btn = document.getElementById('runAllBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<span class="loader border-t-white border-white/20 mr-2"></span> Procesando...`;
+            btn.disabled = true;
+
+            try {
+                log("--- INICIANDO PROCESO COMPLETO ---", "success");
+
+                await runStep1();
+                if (!STATE.wbStep1) throw new Error("El Paso 1 falló y detuvo el proceso.");
+
+                await runStep2();
+                if (!STATE.wbStep2) throw new Error("El Paso 2 falló y detuvo el proceso.");
+
+                await runStep3();
+                if (!STATE.wbStep3) throw new Error("El Paso 3 falló y detuvo el proceso.");
+
+                await runStep3_1();
+                if (!STATE.wbStep3_1) throw new Error("El Paso 3.1 falló y detuvo el proceso.");
+
+                await runStep4();
+                if (!STATE.wbStep4) throw new Error("El Paso 4 falló y detuvo el proceso.");
+
+                log("--- PROCESO COMPLETO FINALIZADO ---", "success");
+                log("Descargando archivo final...", "info");
+
+                // Los pasos 5 y 6 se omiten, el resultado del paso 4 es el final.
+                XLSX.writeFile(STATE.wbStep4, "EMIR_CONSOLIDADO_FINAL.xlsx");
+
+            } catch (error) {
+                log(`Error en el proceso completo: ${error.message}`, 'error');
+                log("El proceso se ha detenido. Revisa los logs para más detalles.", 'error');
+            } finally {
+                // Restaurar el botón
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+
 
         // === STEP 1: CONSOLIDATE WORKBOOKS ===
         async function runStep1() {
@@ -413,17 +523,17 @@
                     let lastHeaderRowIndex = -1;
                     data.forEach((row, index) => {
                         const keyColA = String(row[0] || '').trim().replace(/\s+/g, ' '); // Clave principal en Columna A
-
-                        if (keyColA.startsWith("Programa presupuestario")) { metadata.programa = row[3]; lastHeaderRowIndex = index; }
-                        if (keyColA.startsWith("Ramo")) { metadata.ramo = row[3]; lastHeaderRowIndex = index; }
-                        if (keyColA.startsWith("Unidad responsable")) { metadata.unidad = row[3]; lastHeaderRowIndex = index; }
-                        if (keyColA.startsWith("Enfoques transversales")) { metadata.enfoque = row[3]; lastHeaderRowIndex = index; }
+                        
+                        if (keyColA.startsWith("Programa presupuestario")) { metadata.programa = row[3] ?? ''; lastHeaderRowIndex = index; }
+                        if (keyColA.startsWith("Ramo")) { metadata.ramo = row[3] ?? ''; lastHeaderRowIndex = index; }
+                        if (keyColA.startsWith("Unidad responsable")) { metadata.unidad = row[3] ?? ''; lastHeaderRowIndex = index; }
+                        if (keyColA.startsWith("Enfoques transversales")) { metadata.enfoque = row[3] ?? ''; lastHeaderRowIndex = index; }
                         if (keyColA.startsWith("PRESUPUESTO ORIGINAL")) {
-                            metadata.presupuestoOriginal = { meta: row[4] || '', ejercido: row[5] || '', pct: row[6] || '' };
+                            metadata.presupuestoOriginal = { meta: row[4] ?? '', ejercido: row[5] ?? '', pct: row[6] ?? '' };
                             lastHeaderRowIndex = index;
                         }
                         if (keyColA.startsWith("PRESUPUESTO MODIFICADO")) {
-                            metadata.presupuestoModificado = { meta: row[4] || '', ejercido: row[5] || '', pct: row[6] || '' };
+                            metadata.presupuestoModificado = { meta: row[4] ?? '', ejercido: row[5] ?? '', pct: row[6] ?? '' };
                             lastHeaderRowIndex = index;
                         }
                     });
@@ -471,73 +581,342 @@
             }
         }
 
-        // === STEP 3: CONSOLIDATE SHEETS (A:T + Label in U) ===
+        // === STEP 3: EXTRACT MORE METADATA (EJE, PROGRAMA, ETC.) ===
         async function runStep3() {
             setLoading(3, true);
-            log("Iniciando Paso 3: Consolidando columnas A:T en una sola hoja...");
+            log("Iniciando Paso 3: Extrayendo metadatos adicionales (Eje, Programa, etc.)...");
             await new Promise(r => setTimeout(r, 100));
 
             try {
                 if (!STATE.wbStep2) throw new Error("Falta el resultado del Paso 2");
 
-                const sourceWb = STATE.wbStep2;
-                const destWb = XLSX.utils.book_new(); // New workbook for result
-                
-                // Prepare Master Array
-                // Header J1: NOMBRE_HOJA_ORIGEN
-                let masterData = [];
-                // Optional: Add headers if you want, but macro implies just data or keeps existing headers.
-                // Replicating macro logic: The macro creates a destination sheet and starts pasting.
-                // Let's simply iterate.
-                
-                const DEST_SHEET_NAME = "CONSOLIDADO_TOTAL";
-                
-                // Iterate all sheets in source
-                sourceWb.SheetNames.forEach(sheetName => {
-                    const ws = sourceWb.Sheets[sheetName];
-                    
-                    // Convert sheet to JSON array (array of arrays)
-                    // header:1 gives us raw array of arrays
-                    const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
-                    
-                    if (data.length > 0) {
-                        // Determine last row logic similar to macro
-                        // JS array length is usually enough.
-                        
-                        data.forEach((row, rowIndex) => {
-                            // We now want columns 0 to 19 (A to T)
-                            let newRow = row.slice(0, 20);
-                            
-                            // Pad if row is shorter than 20 columns
-                            while (newRow.length < 20) newRow.push("");
-                            
-                            // Add Sheet Name in Column U (Index 20)
-                            newRow[20] = sheetName;
-                            
-                            masterData.push(newRow);
-                        });
-                    }
-                });
+                const processedWb = XLSX.utils.book_new();
+                let processedCount = 0;
 
-                // Add Header for J if needed (Macro sets J1 bold "NOMBRE_HOJA_ORIGEN")
-                // Since we merged everything, if the original sheets had headers, they are now rows in masterData.
-                // If we strictly follow the macro, it copies everything.
-                // Let's ensure J1 is the header.
-                if (masterData.length > 0 && masterData[0]) {
-                    masterData[0][20] = "NOMBRE_HOJA_ORIGEN"; 
+                for (const sheetName of STATE.wbStep2.SheetNames) {
+                    const ws = STATE.wbStep2.Sheets[sheetName];
+
+                    if (sheetName.toLowerCase().startsWith('ramo')) {
+                        XLSX.utils.book_append_sheet(processedWb, ws, sheetName);
+                        log(`Hoja '${sheetName}' omitida de la extracción de metadatos (comienza con 'Ramo').`);
+                        continue;
+                    }
+
+                    // --- INICIO: Lógica de transformación de indicadores (Paso 3.1) ---
+                    let data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+                    if (data.length === 0) {
+                        XLSX.utils.book_append_sheet(processedWb, XLSX.utils.aoa_to_sheet([]), sheetName);
+                        continue;
+                    }
+
+                    // --- INICIO: Lógica de transformación de indicadores (Refactorizada) ---
+                    const indicadoresIndex = data.findIndex(row => String(row[0] || '').trim() === "INDICADORES");
+                    if (indicadoresIndex > -1) {
+                        const indicatorRows = data.slice(indicadoresIndex + 1);
+                        const consolidatedIndicators = [];
+                        let currentBlock = [];
+
+                        for (const row of indicatorRows) {
+                            const cellA = String(row[0] || '').trim();
+                            // Si encontramos "DENOMINACIÓN" y el bloque actual no está vacío, procesamos el bloque anterior.
+                            if (cellA === "DENOMINACIÓN" && currentBlock.length > 0) {
+                                const consolidatedRow = processIndicatorBlock(currentBlock);
+                                if (consolidatedRow) consolidatedIndicators.push(consolidatedRow);
+                                currentBlock = []; // Empezamos un nuevo bloque
+                            }
+                            currentBlock.push(row);
+                        }
+                        // Procesar el último bloque
+                        if (currentBlock.length > 0) {
+                            const consolidatedRow = processIndicatorBlock(currentBlock);
+                            if (consolidatedRow) consolidatedIndicators.push(consolidatedRow);
+                        }
+
+                        // Reemplazar las filas de indicadores originales con las nuevas filas consolidadas
+                        data.splice(indicadoresIndex, data.length - indicadoresIndex, ...consolidatedIndicators);
+                    }
+
+                    function processIndicatorBlock(block) {
+                        if (!block || block.length === 0) return null;
+
+                        let baseRow = undefined;
+                        const pivotedValues = {
+                            aprobada: undefined,
+                            ajustada: undefined,
+                            realizado: undefined,
+                            avance: undefined
+                        };
+
+                        // 1. Encontrar la fila base, que es la que contiene el nombre del indicador.
+                        // Esta suele estar después de una o más filas "DENOMINACIÓN".
+                        let lastRowWasDenominacion = false;
+                        for (const row of block) {
+                            const cellA = String(row[0] || '').trim();
+                            if (cellA === "DENOMINACIÓN") {
+                                lastRowWasDenominacion = true;
+                            } else if (lastRowWasDenominacion && cellA !== "") {
+                                baseRow = [...row]; // Encontramos la fila con el nombre, la copiamos.
+                                break; // Salimos del bucle una vez encontrada.
+                            }
+                        }
+
+                        // Si no encontramos una fila base (nombre del indicador), no podemos consolidar.
+                        if (!baseRow) return null;
+
+                        // --- INICIO: Mejora para corregir columnas desfasadas ---
+                        // En algunas hojas, no hay "OBJETIVOS", por lo que "MÉTODO" está en B y "UNIDAD" en C.
+                        // La cabecera "DENOMINACIÓN" está en la primera fila del bloque.
+                        const headerRow = block[0];
+                        const unidadMedidaInColC = String(headerRow[2] || '').trim() === "UNIDAD DE MEDIDA";
+
+                        if (unidadMedidaInColC) {
+                            // Mover C -> D, B -> C, y dejar B vacío.
+                            baseRow[3] = baseRow[2]; // Unidad de Medida
+                            baseRow[2] = baseRow[1]; // Método de Cálculo
+                            baseRow[1] = null;       // Objetivos (vacío)
+                        }
+                        // --- FIN: Mejora para corregir columnas desfasadas ---
+
+                        // 2. Recorrer todo el bloque para capturar todos los valores a pivotar.
+                        for (const row of block) {
+                            const keyF = String(row[5] || '').trim();
+                            if (keyF.startsWith("Meta anual aprobada")) { pivotedValues.aprobada = row[6]; }
+                            if (keyF.startsWith("Meta anual ajustada")) { pivotedValues.ajustada = row[6]; }
+                            if (keyF.startsWith("Realizado al Período")) { pivotedValues.realizado = row[6]; }
+                            if (keyF.startsWith("Avance realizado al período")) { pivotedValues.avance = row[6]; }
+                        }
+
+                        // 3. Asignar los valores capturados a las nuevas columnas en la fila base.
+                        baseRow[31] = pivotedValues.aprobada;
+                        baseRow[32] = pivotedValues.ajustada;
+                        baseRow[33] = pivotedValues.realizado;
+                        baseRow[34] = pivotedValues.avance;
+
+                        return baseRow;
+                    }
+                    // --- FIN: Lógica de transformación de indicadores ---
+
+                    let metadata = {
+                        eje: '', programa: '', objetivo: '',
+                        finalidad: '', funcion: '', subfuncion: '', actividad: ''
+                    };
+
+                    const rowsToDelete = new Set();
+
+                    // Find the header row from Step 2. It's the first row that has "Programa Presupuestario" in column K (index 10)
+                    const headerRowIndex = data.findIndex(row => (row[10] || '') === "Programa Presupuestario");
+                    if (headerRowIndex === -1) {
+                        log(`Advertencia en '${sheetName}': No se encontró la fila de encabezados del Paso 2. La hoja podría no procesarse correctamente.`, 'error');
+                        // Continue with a guess or skip? For now, let's just continue.
+                    }
+
+                    // Scan for metadata and mark rows for deletion
+                    for (let i = 0; i < data.length; i++) {
+                        // No procesar la sección de indicadores que ya fue transformada
+                        if (indicadoresIndex > -1 && i >= indicadoresIndex) {
+                            break;
+                        }
+
+                        const row = data[i];
+                        const key = String(row[0] || '').trim().replace(/\s+/g, ' ');
+                        const nextRow = data[i + 1];
+
+                        if (key === "Eje" && nextRow) {
+                            metadata.eje = String(nextRow[0] ?? '').trim();
+                            rowsToDelete.add(i);
+                            rowsToDelete.add(i + 1);
+                        }
+                        if (key === "Programa" && nextRow) {
+                            metadata.programa = String(nextRow[0] ?? '').trim();
+                            rowsToDelete.add(i);
+                            rowsToDelete.add(i + 1);
+                        }
+                        if (key === "Objetivo Prioritario" && nextRow) {
+                            metadata.objetivo = String(nextRow[0] ?? '').trim();
+                            rowsToDelete.add(i); // Marcar "Objetivo Prioritario"
+                            rowsToDelete.add(i + 1); // Marcar el valor del objetivo
+
+                            // Buscar desde aquí hasta encontrar "CLASIFICACIÓN FUNCIONAL" o "RESULTADOS"
+                            for (let j = i + 2; j < data.length; j++) {
+                                const subKey = String(data[j][0] || '').trim();
+                                if (subKey === "CLASIFICACIÓN FUNCIONAL" || subKey === "RESULTADOS") {
+                                    break; // Detenerse al encontrar el siguiente bloque importante
+                                }
+                                rowsToDelete.add(j); // Marcar para eliminar las filas intermedias
+                            }
+                        }
+
+                        if (key === "Finalidad") { metadata.finalidad = String(row[2] ?? '').trim(); rowsToDelete.add(i); }
+                        if (key === "Función") { metadata.funcion = String(row[2] ?? '').trim(); rowsToDelete.add(i); }
+                        if (key === "Subfunción") { metadata.subfuncion = String(row[2] ?? '').trim(); rowsToDelete.add(i); }
+                        if (key === "Actividad Institucional") { metadata.actividad = String(row[2] ?? '').trim(); rowsToDelete.add(i); }
+
+                        // Mark title/empty rows for deletion
+                        if (key.includes("ALINEACIÓN CON LOS EJES") || key.includes("Alineación con los Programas") || key === "CLASIFICACIÓN FUNCIONAL") rowsToDelete.add(i);
+
+                        // Eliminar la fila "Fichas de Indicadores del Desempeño" si las columnas B-G están vacías.
+                        if (key === "Fichas de Indicadores del Desempeño") {
+                            const colsBtoG = row.slice(1, 7); // Columnas B a G
+                            const areColsEmpty = colsBtoG.every(cell => cell === null || String(cell).trim() === '');
+                            if (areColsEmpty) rowsToDelete.add(i);
+                        }
+
+                        if (row.every(cell => cell === null || cell === '')) rowsToDelete.add(i);
+                    }
+
+                    // --- INICIO: Lógica 3.1 Fortalecida ---
+                    let fidNote = '';
+                    const textoInicioNota = "*Los Programas presupuestarios pueden ser ejecutados de manera conjunta por diversas";
+                    // Revisar las últimas 5 filas, que es donde suele estar la nota.
+                    for (let i = Math.max(0, data.length - 5); i < data.length; i++) {
+                        const cellText = String(data[i][0] || '').trim();
+                        if (cellText.startsWith(textoInicioNota)) {
+                            fidNote = cellText; // Capturar el texto completo de la celda
+                            rowsToDelete.add(i); // Marcar para eliminar de su posición original
+                            break; // Salir una vez encontrada
+                        }
+                    }
+
+                    // Búsqueda de cualquiera de los dos textos de justificación
+                    const justificacionIndex = data.findIndex(row => {
+                        const cellText = String(row[0] || '').trim();
+                        return cellText === "Justificación de diferencia de avances con respecto a las metas programadas" ||
+                               cellText === "Justificación del ajuste a las metas";
+                    });
+
+                    if (justificacionIndex > -1) {
+                        let denominacionFound = false;
+                        for (let i = justificacionIndex + 1; i < data.length; i++) {
+                            if (String(data[i][0] || '').trim().includes("DENOMINACIÓN")) {
+                                denominacionFound = true;
+                                break;
+                            }
+                        }
+                        if (!denominacionFound) {
+                            for (let i = justificacionIndex; i < data.length; i++) {
+                                rowsToDelete.add(i);
+                            }
+                        }
+                    }
+                    // --- FIN: Lógica 3.1 Fortalecida ---
+
+                    // --- INICIO: Lógica 3.1 (RESULTADOS, NIVEL, UNIDAD RESPONSABLE) ---
+                    const resultadosIndex = data.findIndex(row => String(row[0] || '').trim() === "RESULTADOS");
+                    let nivel = '';
+                    let unidadResponsable = '';
+                    let newHeadersAdded = false;
+
+                    if (resultadosIndex > -1) {
+                        rowsToDelete.add(resultadosIndex); // Marcar "RESULTADOS" para eliminar
+
+                        for (let i = resultadosIndex + 1; i < data.length; i++) {
+                            const key = String(data[i][0] || '').trim();
+                            let isHeaderRow = false;
+
+                            if (key.startsWith("NIVEL:")) {
+                                nivel = key;
+                                unidadResponsable = ''; // Resetear la unidad si se encuentra un nuevo nivel
+                                rowsToDelete.add(i);
+                                isHeaderRow = true;
+                            } else if (key.startsWith("Unidad Responsable*:")) {
+                                unidadResponsable = key;
+                                rowsToDelete.add(i);
+                                isHeaderRow = true;
+                            }
+
+                            // Si no es una fila de encabezado que vamos a borrar, le añadimos los metadatos
+                            if (!isHeaderRow && !rowsToDelete.has(i)) {
+                                // Añadir encabezados en la primera fila de datos que procesemos
+                                if (!newHeadersAdded && headerRowIndex > -1) {
+                                    data[headerRowIndex][28] = "NIVEL";
+                                    data[headerRowIndex][29] = "Unidad Responsable";
+                                    newHeadersAdded = true;
+                                }
+                                // Añadir los valores a la fila actual
+                                data[i][28] = nivel;
+                                data[i][29] = unidadResponsable;
+                            }
+                        }
+                    }
+                    // --- FIN: Lógica 3.1 ---
+
+                    // Filter out the marked rows
+                    let cleanedData = data.filter((_, index) => {
+                        // Mantener la fila de encabezado, y eliminar las filas marcadas por ambas lógicas de borrado
+                        return index === headerRowIndex || !rowsToDelete.has(index);
+                    });
+
+                    // Add new headers and data
+                    if (cleanedData.length > 0) {
+                        const headers = [
+                            "Eje", "Programa", "Objetivo Prioritario",
+                            "Finalidad", "Función", "Subfunción", "Actividad Institucional"
+                        ];
+                        const fidHeaderIndex = 30; // Colocamos FID en la columna AE (índice 30)
+
+                        // Start at column U (index 20)
+                        headers.forEach((h, i) => cleanedData[0][20 + i] = h);
+                        if (fidNote) cleanedData[0][fidHeaderIndex] = "FID"; // Añadir encabezado FID solo si se encontró la nota
+
+                        // Añadir encabezados de pivote
+                        if (indicadoresIndex > -1) {
+                            // Encabezados de Atributos en A-E
+                            cleanedData[0][0] = "DENOMINACIÓN";
+                            cleanedData[0][1] = "OBJETIVOS";
+                            cleanedData[0][2] = "MÉTODO DE CÁLCULO";
+                            cleanedData[0][3] = "UNIDAD DE MEDIDA";
+                            cleanedData[0][4] = "TIPO-DIMENSIÓN-FRECUENCIA";
+                            // Encabezados de Metas a partir de AF (índice 31)
+                            const pivotHeaders = [
+                                "Meta Anual Aprobada",
+                                "Meta Anual Ajustada",
+                                "Realizado al Período",
+                                "Avance %"
+                            ];
+                            pivotHeaders.forEach((h, i) => cleanedData[0][31 + i] = h);
+                        }
+
+                        const values = [
+                            metadata.eje, metadata.programa, metadata.objetivo,
+                            metadata.finalidad, metadata.funcion, metadata.subfuncion, metadata.actividad
+                        ];
+                        for (let i = 1; i < cleanedData.length; i++) {
+                            values.forEach((v, j) => cleanedData[i][20 + j] = v);
+                            if (fidNote) cleanedData[i][fidHeaderIndex] = fidNote; // Añadir el valor de la nota a cada fila
+                        }
+                    }
+
+                    // --- INICIO: Lógica de limpieza final del Paso 3 ---
+                    // 1. Verificar si la segunda fila es "Primera Cadena de Alineación" y eliminarla.
+                    if (cleanedData.length > 1 && String(cleanedData[1][0] || '').trim() === "Primera Cadena de Alineación") {
+                        cleanedData.splice(1, 1);
+                    }
+
+                    // 2. Eliminar filas donde las columnas A-G están vacías (excepto la cabecera).
+                    cleanedData = cleanedData.filter((row, index) => {
+                        if (index === 0) return true; // Siempre mantener la fila de encabezado.
+                        const firstSevenCols = row.slice(0, 7);
+                        return firstSevenCols.some(cell => cell !== null && cell !== undefined && String(cell).trim() !== '');
+                    });
+
+                    // 3. Eliminar las columnas F, G, H, I, J (índices 5, 6, 7, 8, 9).
+                    // Esto se hace en cada fila. El método splice(5, 5) elimina 5 elementos a partir del índice 5.
+                    cleanedData.forEach(row => {
+                        if (row.length > 9) { // Asegurarse de que la fila tenga suficientes columnas para evitar errores.
+                            row.splice(5, 5);
+                        }
+                    });
+                    // --- FIN: Lógica de limpieza final del Paso 3 ---
+
+                    const newWs = XLSX.utils.aoa_to_sheet(cleanedData);
+                    XLSX.utils.book_append_sheet(processedWb, newWs, sheetName);
+                    processedCount++;
                 }
 
-                // Create worksheet from data
-                const newWs = XLSX.utils.aoa_to_sheet(masterData);
-                
-                // Add to workbook
-                XLSX.utils.book_append_sheet(destWb, newWs, DEST_SHEET_NAME);
-                
-                STATE.wbStep3 = destWb;
-                
-                log(`Paso 3 Completado. ${masterData.length} filas generadas en ${DEST_SHEET_NAME}.`, 'success');
+                STATE.wbStep3 = processedWb;
+                log(`Paso 3 Completado. Se extrajeron metadatos de ${processedCount} hojas.`, 'success');
                 setLoading(3, false);
-                enableStep(4);
+                enableStep('3_1');
                 document.getElementById('dlStep3').classList.remove('hidden');
 
             } catch (e) {
@@ -546,35 +925,169 @@
             }
         }
 
-        // === STEP 4: UNMERGE ALL ===
-        async function runStep4() {
-            setLoading(4, true);
-            log("Iniciando Paso 4: Descombinando celdas...");
+        // === STEP 3.1: CLEAN "RAMO" SHEETS ===
+        async function runStep3_1() {
+            setLoading('3_1', true);
+            log("Iniciando Paso 3.1: Limpiando hojas 'Ramo'...");
             await new Promise(r => setTimeout(r, 100));
 
             try {
                 if (!STATE.wbStep3) throw new Error("Falta el resultado del Paso 3");
-                
-                // Clone workbook logic (SheetJS objects are references, so we should be careful)
-                // Since we are moving forward, we can modify the previous WB or clone data.
-                // Simplest: Write to buffer and read back to deep clone, or just modify the object if we don't care about history.
-                // Let's modify object directly but save as new reference in state for clarity.
-                
-                const wb = STATE.wbStep3; // We will modify this directly effectively
-                const ws = wb.Sheets["CONSOLIDADO_TOTAL"];
-                
-                // Unmerge logic in SheetJS: simply delete the '!merges' property
-                if (ws['!merges']) {
-                    const count = ws['!merges'].length;
-                    delete ws['!merges'];
-                    log(`Se eliminaron ${count} configuraciones de fusión de celdas.`);
-                } else {
-                    log("No se encontraron celdas combinadas.");
+
+                const sourceWb = STATE.wbStep3;
+                const processedWb = XLSX.utils.book_new();
+                let processedCount = 0;
+
+                for (const sheetName of sourceWb.SheetNames) {
+                    const ws = sourceWb.Sheets[sheetName];
+
+                    // Solo procesar hojas "Ramo"
+                    if (!sheetName.toLowerCase().startsWith('ramo')) {
+                        XLSX.utils.book_append_sheet(processedWb, ws, sheetName); // Copiar las otras hojas sin cambios
+                        continue;
+                    }
+
+                    log(`Procesando hoja 'Ramo': ${sheetName}`);
+                    let data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+
+                    // 1. Buscar la fila de cabecera "Clave Programa presupuestario" en la columna B (índice 1)
+                    const headerRowIndex = data.findIndex(row => String(row[1] || '').trim() === "Clave Programa presupuestario");
+
+                    if (headerRowIndex === -1) {
+                        log(`Advertencia: No se encontró la cabecera 'Clave Programa presupuestario' en la hoja ${sheetName}. Se copiará sin cambios.`, 'error');
+                        XLSX.utils.book_append_sheet(processedWb, ws, sheetName);
+                        continue;
+                    }
+
+                    // 2. Eliminar todas las filas anteriores a la cabecera
+                    if (headerRowIndex > 0) {
+                        data.splice(0, headerRowIndex);
+                        log(`- Se eliminaron ${headerRowIndex} filas de cabecera.`);
+                    }
+
+                    // 3. Eliminar la columna A (índice 0) de cada fila
+                    data.forEach(row => row.splice(0, 1));
+                    log(`- Se eliminó la columna A.`);
+
+                    // 4. Rellenar vacíos (lógica similar al Paso 6) en las primeras 6 columnas nuevas (ex B-G)
+                    const NUM_COLS_TO_FILL = 6; // A-F
+                    let lastValues = new Array(NUM_COLS_TO_FILL).fill(null);
+                    let filledCount = 0;
+
+                    for (let r = 1; r < data.length; r++) { // Empezar desde la fila 1 (después de la cabecera)
+                        for (let c = 0; c < NUM_COLS_TO_FILL; c++) {
+                            const cellValue = data[r][c];
+                            if (cellValue === null || String(cellValue).trim() === '') {
+                                if (lastValues[c] !== null) {
+                                    data[r][c] = lastValues[c];
+                                    filledCount++;
+                                }
+                            } else {
+                                lastValues[c] = cellValue;
+                            }
+                        }
+                    }
+                    log(`- Se rellenaron ${filledCount} celdas vacías en las primeras 6 columnas.`);
+
+                    const newWs = XLSX.utils.aoa_to_sheet(data);
+                    XLSX.utils.book_append_sheet(processedWb, newWs, sheetName);
+                    processedCount++;
                 }
 
-                STATE.wbStep4 = wb; // Pointer to same object (modified)
-                
-                log("Paso 4 Completado.", 'success');
+                STATE.wbStep3_1 = processedWb;
+                log(`Paso 3.1 Completado. Se limpiaron ${processedCount} hojas 'Ramo'.`, 'success');
+                setLoading('3_1', false);
+                enableStep(4);
+                document.getElementById('dlStep3_1').classList.remove('hidden');
+
+            } catch (e) {
+                log("Error en Paso 3.1: " + e.message, 'error');
+                setLoading('3_1', false);
+            }
+        }
+
+        // === STEP 4: CONSOLIDATE SHEETS (A:T + Label in U) ===
+        async function runStep4() {
+            setLoading(4, true);
+            log("Iniciando Paso 4: Consolidando hojas en dos grupos (Ramo y General)...");
+            await new Promise(r => setTimeout(r, 100));
+
+            try {
+                if (!STATE.wbStep3_1) throw new Error("Falta el resultado del Paso 3.1");
+
+                const sourceWb = STATE.wbStep3_1;
+                const destWb = XLSX.utils.book_new();
+
+                let ramoData = [];
+                let generalData = [];
+                const DEST_SHEET_RAMO = "CONSOLIDADO_RAMO";
+                const DEST_SHEET_GENERAL = "CONSOLIDADO_GENERAL";
+
+                sourceWb.SheetNames.forEach(sheetName => {
+                    const ws = sourceWb.Sheets[sheetName];
+                    const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+
+                    if (data.length === 0) return;
+
+                    const targetArray = sheetName.toLowerCase().startsWith('ramo') ? ramoData : generalData;
+
+                    // Si es la primera vez que agregamos datos a este grupo, añadimos la cabecera.
+                    if (targetArray.length === 0 && data.length > 0) {
+                        // La primera fila de 'data' es la cabecera del paso 3.
+                        const headerRow = data[0];
+                        headerRow.push("NOMBRE_HOJA_ORIGEN");
+                        targetArray.push(headerRow);
+                    }
+
+                    // Añadir el nombre de la hoja a cada fila (excepto la de cabecera).
+                    data.forEach((row, index) => {
+                        // Omitir la fila de cabecera (index 0) y las filas completamente vacías.
+                        if (index > 0) {
+                            // MEJORA: Una fila se considera vacía si no tiene un valor significativo.
+                            // Para las hojas 'Ramo', la columna G (índice 6, "Original Aprobado") debe tener un valor.
+                            // Para las hojas generales, la columna A (índice 0, "DENOMINACIÓN") debe tener un valor.
+                            const isRamoSheet = sheetName.toLowerCase().startsWith('ramo');
+                            const significantCellIndex = isRamoSheet ? 6 : 0; // Col G para Ramo, Col A para General
+                            const significantCell = row[significantCellIndex];
+                            const isRowEffectivelyEmpty = significantCell === "" || significantCell === null || significantCell === undefined;
+                            
+                            if (!isRowEffectivelyEmpty) {
+                                const dataRow = row;
+                                dataRow.push(sheetName); // Añadir el nombre de la hoja origen
+                                targetArray.push(dataRow);
+                            }
+                        }
+                    });
+                });
+
+                // Create and append sheets if they have data
+                if (ramoData.length > 0) {
+                    const newWsRamo = XLSX.utils.aoa_to_sheet(ramoData);
+                    XLSX.utils.book_append_sheet(destWb, newWsRamo, DEST_SHEET_RAMO);
+                    log(`- Grupo 'Ramo': ${ramoData.length} filas generadas en la hoja '${DEST_SHEET_RAMO}'.`);
+                } else {
+                    log("- Grupo 'Ramo': No se encontraron hojas que comenzaran con 'Ramo'.");
+                }
+
+                if (generalData.length > 0) {
+                    const newWsGeneral = XLSX.utils.aoa_to_sheet(generalData);
+                    XLSX.utils.book_append_sheet(destWb, newWsGeneral, DEST_SHEET_GENERAL);
+                    log(`- Grupo 'General': ${generalData.length} filas generadas en la hoja '${DEST_SHEET_GENERAL}'.`);
+                } else {
+                    log("- Grupo 'General': No se encontraron hojas que no comenzaran con 'Ramo'.");
+                }
+
+                // The next step (unmerge) needs to know which sheet to process.
+                // The macro seems to imply the main consolidation is the non-Ramo one.
+                // Let's rename the general one to the original name for compatibility with next steps.
+                if (destWb.Sheets[DEST_SHEET_GENERAL]) {
+                    destWb.Sheets["CONSOLIDADO_TOTAL"] = destWb.Sheets[DEST_SHEET_GENERAL];
+                    delete destWb.Sheets[DEST_SHEET_GENERAL];
+                    destWb.SheetNames[destWb.SheetNames.indexOf(DEST_SHEET_GENERAL)] = "CONSOLIDADO_TOTAL";
+                }
+
+                STATE.wbStep4 = destWb;
+                log(`Paso 4 Completado. Se crearon ${destWb.SheetNames.length} hojas consolidadas.`, 'success');
                 setLoading(4, false);
                 enableStep(5);
                 document.getElementById('dlStep4').classList.remove('hidden');
@@ -585,14 +1098,66 @@
             }
         }
 
-        // === STEP 5: FILL BLANKS (Column A-F) ===
+        // === STEP 5: UNMERGE ALL ===
         async function runStep5() {
+            // ADVERTENCIA: Este paso y los siguientes (4 y 5) operarán sobre la hoja "CONSOLIDADO_TOTAL".
+            // La hoja "CONSOLIDADO_RAMO" no será modificada por los pasos posteriores.
+            // Esto replica el comportamiento más probable de la macro original, que se enfoca en un solo flujo de datos.
+
             setLoading(5, true);
-            log("Iniciando Paso 5: Rellenando vacíos en Columnas A-F...");
+            log("Iniciando Paso 5: Descombinando celdas...");
             await new Promise(r => setTimeout(r, 100));
 
             try {
                 if (!STATE.wbStep4) throw new Error("Falta el resultado del Paso 4");
+                
+                // Clone workbook logic (SheetJS objects are references, so we should be careful)
+                // Since we are moving forward, we can modify the previous WB or clone data.
+                // Simplest: Write to buffer and read back to deep clone, or just modify the object if we don't care about history.
+                // Let's modify object directly but save as new reference in state for clarity.
+                
+                const wb = STATE.wbStep4; // We will modify this directly effectively
+                const ws = wb.Sheets["CONSOLIDADO_TOTAL"]; // This is the target sheet
+
+                if (!ws) {
+                    log("No se encontró la hoja 'CONSOLIDADO_TOTAL' para descombinar. Saltando paso.", 'error');
+                    throw new Error("Hoja 'CONSOLIDADO_TOTAL' no encontrada.");
+                }
+                
+                // Unmerge logic in SheetJS: simply delete the '!merges' property
+                if (ws['!merges']) {
+                    const count = ws['!merges'].length;
+                    delete ws['!merges'];
+                    log(`Se eliminaron ${count} configuraciones de fusión de celdas.`);
+                } else {
+                    log("No se encontraron celdas combinadas.");
+                }
+
+                STATE.wbStep5 = wb; // Pointer to same object (modified)
+                
+                log("Paso 5 Completado.", 'success');
+                setLoading(5, false);
+                enableStep(6);
+                document.getElementById('dlStep5').classList.remove('hidden');
+
+            } catch (e) {
+                log("Error en Paso 5: " + e.message, 'error');
+                setLoading(5, false);
+            }
+        }
+
+        // === STEP 6: FILL BLANKS (Column A-F) ===
+        async function runStep6() {
+            setLoading(6, true);
+            log("Iniciando Paso 6: Rellenando vacíos en Columnas A-F...");
+            await new Promise(r => setTimeout(r, 100));
+
+            try {
+                if (!STATE.wbStep5) throw new Error("Falta el resultado del Paso 5");
+                if (!STATE.wbStep5.Sheets["CONSOLIDADO_TOTAL"]) {
+                    log("No se encontró la hoja 'CONSOLIDADO_TOTAL' para rellenar. Saltando paso.", 'error');
+                    throw new Error("Hoja 'CONSOLIDADO_TOTAL' no encontrada.");
+                }
 
                 const wb = STATE.wbStep4;
                 const ws = wb.Sheets["CONSOLIDADO_TOTAL"];
@@ -652,15 +1217,15 @@
                 }
                 // --- FIN: Lógica agregada ---
 
-                STATE.wbStep5 = wb;
+                STATE.wbStep6 = wb;
                 
-                log(`Paso 5 Completado. Se rellenaron ${filledCount} celdas y se marcaron ${fidCount} filas como FID.`, 'success');
-                setLoading(5, false);
-                document.getElementById('dlStep5').classList.remove('hidden');
+                log(`Paso 6 Completado. Se rellenaron ${filledCount} celdas y se marcaron ${fidCount} filas como FID.`, 'success');
+                setLoading(6, false);
+                document.getElementById('dlStep6').classList.remove('hidden');
 
             } catch (e) {
-                log("Error en Paso 5: " + e.message, 'error');
-                setLoading(5, false);
+                log("Error en Paso 6: " + e.message, 'error');
+                setLoading(6, false);
             }
         }
 
@@ -668,6 +1233,7 @@
         function enableStep(num) {
             const card = document.getElementById(`cardStep${num}`);
             card.classList.remove('disabled');
+            if (num == 2) document.getElementById('allInOneStep').classList.remove('hidden');
         }
 
         function setLoading(stepNum, isLoading) {
@@ -698,15 +1264,23 @@
                     break;
                 case 3: 
                     wb = STATE.wbStep3; 
-                    filename = "3_Hojas_Consolidadas.xlsx"; 
+                    filename = "3_Metadatos_Extraidos.xlsx"; 
+                    break;
+                case '3.1': 
+                    wb = STATE.wbStep3_1; 
+                    filename = "3_1_Ramo_Limpiado.xlsx"; 
                     break;
                 case 4: 
                     wb = STATE.wbStep4; 
-                    filename = "4_Descombinado.xlsx"; 
+                    filename = "4_Hojas_Consolidadas.xlsx"; 
                     break;
                 case 5: 
                     wb = STATE.wbStep5; 
-                    filename = "5_FINAL_Rellenado.xlsx"; 
+                    filename = "5_Descombinado.xlsx"; 
+                    break;
+                case 6: 
+                    wb = STATE.wbStep6; 
+                    filename = "6_FINAL_Rellenado.xlsx"; 
                     break;
             }
 
