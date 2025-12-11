@@ -399,7 +399,8 @@
                 log("Descargando archivo final...", "info");
 
                 // Los pasos 5 y 6 se omiten, el resultado del paso 4 es el final.
-                XLSX.writeFile(STATE.wbStep4, "EMIR_CONSOLIDADO_FINAL.xlsx");
+                const styledWb = applyStylesToWorkbook(STATE.wbStep4);
+                XLSX.writeFile(styledWb, "EMIR_CONSOLIDADO_FINAL.xlsx");
 
             } catch (error) {
                 log(`Error en el proceso completo: ${error.message}`, 'error');
@@ -434,6 +435,12 @@
                         const wb = XLSX.read(file.data, { type: 'array' });
                         
                         wb.SheetNames.forEach(sheetName => {
+                            // REQUERIMIENTO: Ignorar hojas que empiezan con "FID"
+                            if (sheetName.toUpperCase().startsWith('FID')) {
+                                log(`Omitiendo hoja '${sheetName}' del archivo '${file.fileNameSimple}' porque empieza con 'FID'.`);
+                                return; // Saltar esta hoja
+                            }
+
                             let ws = wb.Sheets[sheetName];
                             
                             // Handle duplicate names (Requerimiento: "conservando su nombre original (no se repiten y debe verificar que no lo hagan)")
@@ -860,12 +867,14 @@
 
                         // Añadir encabezados de pivote
                         if (indicadoresIndex > -1) {
-                            // Encabezados de Atributos en A-E
-                            cleanedData[0][0] = "DENOMINACIÓN";
-                            cleanedData[0][1] = "OBJETIVOS";
-                            cleanedData[0][2] = "MÉTODO DE CÁLCULO";
-                            cleanedData[0][3] = "UNIDAD DE MEDIDA";
-                            cleanedData[0][4] = "TIPO-DIMENSIÓN-FRECUENCIA";
+                            // CORRECCIÓN: Asegurar que los encabezados de A-E se mantengan en la fila 0.
+                            // La lógica de `processIndicatorBlock` puede haber reemplazado la fila de encabezado.
+                            const headerRow = cleanedData[0];
+                            headerRow[0] = "DENOMINACIÓN";
+                            headerRow[1] = "OBJETIVOS";
+                            headerRow[2] = "MÉTODO DE CÁLCULO";
+                            headerRow[3] = "UNIDAD DE MEDIDA";
+                            headerRow[4] = "TIPO-DIMENSIÓN-FRECUENCIA";
                             // Encabezados de Metas a partir de AF (índice 31)
                             const pivotHeaders = [
                                 "Meta Anual Aprobada",
@@ -873,7 +882,7 @@
                                 "Realizado al Período",
                                 "Avance %"
                             ];
-                            pivotHeaders.forEach((h, i) => cleanedData[0][31 + i] = h);
+                            pivotHeaders.forEach((h, i) => headerRow[31 + i] = h);
                         }
 
                         const values = [
@@ -1229,6 +1238,63 @@
             }
         }
 
+        // === STYLING UTILITY ===
+        function applyStylesToWorkbook(wb) {
+            const defaultFont = { name: 'Noto Sans', sz: 9 };
+            const borderStyle = { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } };
+            
+            const headerStyleGeneral = {
+                font: { name: 'Noto Sans', sz: 9, bold: true, color: { rgb: "FFFFFF" } },
+                fill: { fgColor: { rgb: "9C2348" } }, // Guinda
+                border: borderStyle
+            };
+            const headerStyleRamo = {
+                font: { name: 'Noto Sans', sz: 9, bold: true, color: { rgb: "FFFFFF" } },
+                fill: { fgColor: { rgb: "1E5B4F" } }, // Verde Oscuro
+                border: borderStyle
+            };
+            const defaultCellStyle = {
+                font: defaultFont,
+                border: borderStyle
+            };
+
+            wb.SheetNames.forEach(sheetName => {
+                const ws = wb.Sheets[sheetName];
+                const range = XLSX.utils.decode_range(ws['!ref']);
+
+                // Aplicar color a la pestaña de la hoja
+                if (!ws['!props']) ws['!props'] = {};
+                if (sheetName.includes("RAMO")) {
+                    ws['!props'].tabColor = { rgb: "1E5B4F" }; // Verde Oscuro
+                } else {
+                    ws['!props'].tabColor = { rgb: "9C2348" }; // Guinda
+                }
+
+                // Iterar sobre todas las celdas para aplicar estilos
+                for (let R = range.s.r; R <= range.e.r; ++R) {
+                    for (let C = range.s.c; C <= range.e.c; ++C) {
+                        const cell_address = { c: C, r: R };
+                        const cell_ref = XLSX.utils.encode_cell(cell_address);
+                        let cell = ws[cell_ref];
+                        if (!cell) cell = ws[cell_ref] = { t: 's', v: '' }; // Crear celda si no existe
+
+                        // Aplicar estilo de encabezado a la primera fila
+                        if (R === 0) {
+                            if (sheetName.includes("RAMO")) {
+                                cell.s = headerStyleRamo;
+                            } else {
+                                cell.s = headerStyleGeneral;
+                            }
+                        } else { // Aplicar estilo por defecto al resto
+                            cell.s = defaultCellStyle;
+                        }
+                    }
+                }
+            });
+
+            return wb;
+        }
+
         // === UTILS ===
         function enableStep(num) {
             const card = document.getElementById(`cardStep${num}`);
@@ -1285,7 +1351,8 @@
             }
 
             if (wb) {
-                XLSX.writeFile(wb, filename);
+                const styledWb = applyStylesToWorkbook(wb);
+                XLSX.writeFile(styledWb, filename);
             }
         }
     </script>
