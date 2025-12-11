@@ -398,8 +398,11 @@
                 log("--- PROCESO COMPLETO FINALIZADO ---", "success");
                 log("Descargando archivo final...", "info");
 
-                // Los pasos 5 y 6 se omiten, el resultado del paso 4 es el final.
-                const styledWb = applyStylesToWorkbook(STATE.wbStep4);
+                // Aplicar limpieza final antes de descargar
+                log("Aplicando limpieza final (unificar columnas, eliminar vacías)...");
+                const finalWb = applyFinalCleanup(STATE.wbStep4);
+
+                const styledWb = applyStylesToWorkbook(finalWb);
                 XLSX.writeFile(styledWb, "EMIR_CONSOLIDADO_FINAL.xlsx");
 
             } catch (error) {
@@ -412,7 +415,60 @@
             }
         }
 
+        // === FINAL CLEANUP UTILITY ===
+        function applyFinalCleanup(wb) {
+            const sheetName = "CONSOLIDADO_TOTAL";
+            const ws = wb.Sheets[sheetName];
+            if (!ws) {
+                log("Advertencia: No se encontró la hoja 'CONSOLIDADO_TOTAL' para la limpieza final.", "error");
+                return wb;
+            }
 
+            let data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+
+            if (data.length < 2) {
+                log("Advertencia: La hoja 'CONSOLIDADO_TOTAL' no tiene datos suficientes para la limpieza final.", "error");
+                return wb;
+            }
+
+            // Indices de columnas: H=7, W=22, Y=24, Z=25
+            const COL_H_INDEX = 7;
+            const COL_W_INDEX = 22;
+            const COL_Y_INDEX = 24;
+            const COL_Z_INDEX = 25;
+            const PREFIX_TO_REMOVE = "Unidad Responsable*: ";
+
+            // 1. Unificar columnas H y Y en Z
+            data.forEach((row, index) => {
+                if (index === 0) { // Fila de encabezado
+                    row[COL_Z_INDEX] = "Unidad Responsable (Unificada)";
+                    return;
+                }
+
+                const valH = row[COL_H_INDEX];
+                const valY = row[COL_Y_INDEX];
+
+                if (valH && String(valH).trim() !== '') {
+                    row[COL_Z_INDEX] = valH;
+                } else if (valY && String(valY).trim() !== '') {
+                    row[COL_Z_INDEX] = String(valY).replace(PREFIX_TO_REMOVE, '').trim();
+                } else {
+                    row[COL_Z_INDEX] = null;
+                }
+            });
+
+            // 2. Eliminar columnas W, Y, H (en orden inverso para no afectar los índices)
+            data.forEach(row => {
+                row.splice(COL_Y_INDEX, 1); // Eliminar Y
+                row.splice(COL_W_INDEX, 1); // Eliminar W
+                row.splice(COL_H_INDEX, 1); // Eliminar H
+            });
+
+            // 3. Crear un nuevo libro de trabajo con la hoja modificada
+            const newWs = XLSX.utils.aoa_to_sheet(data);
+            wb.Sheets[sheetName] = newWs;
+            return wb;
+        }
 
         // === STEP 1: CONSOLIDATE WORKBOOKS ===
         async function runStep1() {
