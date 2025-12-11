@@ -609,8 +609,72 @@
                         continue;
                     }
 
-                    // --- INICIO: Lógica de transformación de indicadores (Paso 3.1) ---
+                    // --- INICIO: Lógica de extracción de Nivel/Unidad (CORREGIDA) ---
+                    // Esta lógica ahora se ejecuta ANTES de la transformación de indicadores.
                     let data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+                    const rowsToDelete = new Set(); // Declaración movida aquí para que esté disponible para toda la función.
+                    
+                    // Find the header row from Step 2. It's the first row that has "Programa Presupuestario" in column K (index 10)
+                    const headerRowIndex = data.findIndex(row => (row[10] || '') === "Programa Presupuestario");
+
+                    const resultadosIndex = data.findIndex(row => String(row[0] || '').trim() === "RESULTADOS");
+
+                    if (resultadosIndex > -1) {
+
+                        const sectionToEnd = data.slice(resultadosIndex + 1);
+                        const hasNivel = sectionToEnd.some(row => String(row[0] || '').trim().startsWith("NIVEL:"));
+                        
+                        let newHeadersAdded = false;
+                        const stopTexts = [
+                            "Justificación de diferencia de avances con respecto a las metas programadas",
+                            "Justificación del ajuste a las metas"
+                        ];
+
+                        rowsToDelete.add(resultadosIndex); // Marcar "RESULTADOS" para eliminar
+
+                        if (hasNivel) { // --- MODO NIVEL ---
+                            log(`- Hoja '${sheetName}' en 'Modo Nivel'.`);
+                            let nivelActual = '';
+                            for (let i = resultadosIndex + 1; i < data.length; i++) {
+                                const key = String(data[i][0] || '').trim();
+                                if (stopTexts.includes(key)) break; // Detenerse si se encuentra texto de justificación
+
+                                if (key.startsWith("NIVEL:")) {
+                                    nivelActual = key;
+                                    rowsToDelete.add(i);
+                                } else if (!rowsToDelete.has(i)) {
+                                    if (!newHeadersAdded && headerRowIndex > -1) {
+                                        data[headerRowIndex][28] = "NIVEL";
+                                        newHeadersAdded = true;
+                                    }
+                                    data[i][28] = nivelActual;
+                                }
+                            }
+                        } else { // --- MODO UNIDAD ---
+                            log(`- Hoja '${sheetName}' en 'Modo Unidad'.`);
+                            let unidadActual = '';
+                            for (let i = resultadosIndex + 1; i < data.length; i++) {
+                                const key = String(data[i][0] || '').trim();
+                                if (stopTexts.includes(key)) break; // Detenerse si se encuentra texto de justificación
+
+                                if (key.startsWith("Unidad Responsable*:")) {
+                                    unidadActual = key;
+                                    rowsToDelete.add(i);
+                                } else if (!rowsToDelete.has(i)) {
+                                    if (!newHeadersAdded && headerRowIndex > -1) {
+                                        data[headerRowIndex][29] = "Unidad Responsable";
+                                        newHeadersAdded = true;
+                                    }
+                                    data[i][29] = unidadActual;
+                                }
+                            }
+                        }
+                    }
+                    // --- FIN: Lógica de extracción de Nivel/Unidad (CORREGIDA) ---
+
+
+                    // --- INICIO: Lógica de transformación de indicadores (Paso 3.1) ---
+                    // let data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null }); // Movido arriba
                     if (data.length === 0) {
                         XLSX.utils.book_append_sheet(processedWb, XLSX.utils.aoa_to_sheet([]), sheetName);
                         continue;
@@ -708,13 +772,8 @@
                         finalidad: '', funcion: '', subfuncion: '', actividad: ''
                     };
 
-                    const rowsToDelete = new Set();
-
-                    // Find the header row from Step 2. It's the first row that has "Programa Presupuestario" in column K (index 10)
-                    const headerRowIndex = data.findIndex(row => (row[10] || '') === "Programa Presupuestario");
                     if (headerRowIndex === -1) {
                         log(`Advertencia en '${sheetName}': No se encontró la fila de encabezados del Paso 2. La hoja podría no procesarse correctamente.`, 'error');
-                        // Continue with a guess or skip? For now, let's just continue.
                     }
 
                     // Scan for metadata and mark rows for deletion
@@ -806,46 +865,6 @@
                         }
                     }
                     // --- FIN: Lógica 3.1 Fortalecida ---
-
-                    // --- INICIO: Lógica 3.1 (RESULTADOS, NIVEL, UNIDAD RESPONSABLE) ---
-                    const resultadosIndex = data.findIndex(row => String(row[0] || '').trim() === "RESULTADOS");
-                    let nivel = '';
-                    let unidadResponsable = '';
-                    let newHeadersAdded = false;
-
-                    if (resultadosIndex > -1) {
-                        rowsToDelete.add(resultadosIndex); // Marcar "RESULTADOS" para eliminar
-
-                        for (let i = resultadosIndex + 1; i < data.length; i++) {
-                            const key = String(data[i][0] || '').trim();
-                            let isHeaderRow = false;
-
-                            if (key.startsWith("NIVEL:")) {
-                                nivel = key;
-                                unidadResponsable = ''; // Resetear la unidad si se encuentra un nuevo nivel
-                                rowsToDelete.add(i);
-                                isHeaderRow = true;
-                            } else if (key.startsWith("Unidad Responsable*:")) {
-                                unidadResponsable = key;
-                                rowsToDelete.add(i);
-                                isHeaderRow = true;
-                            }
-
-                            // Si no es una fila de encabezado que vamos a borrar, le añadimos los metadatos
-                            if (!isHeaderRow && !rowsToDelete.has(i)) {
-                                // Añadir encabezados en la primera fila de datos que procesemos
-                                if (!newHeadersAdded && headerRowIndex > -1) {
-                                    data[headerRowIndex][28] = "NIVEL";
-                                    data[headerRowIndex][29] = "Unidad Responsable";
-                                    newHeadersAdded = true;
-                                }
-                                // Añadir los valores a la fila actual
-                                data[i][28] = nivel;
-                                data[i][29] = unidadResponsable;
-                            }
-                        }
-                    }
-                    // --- FIN: Lógica 3.1 ---
 
                     // Filter out the marked rows
                     let cleanedData = data.filter((_, index) => {
