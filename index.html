@@ -591,11 +591,14 @@
                         if (keyColA.startsWith("Ramo")) { metadata.ramo = row[3] ?? ''; lastHeaderRowIndex = index; }
                         if (keyColA.startsWith("Unidad responsable")) { metadata.unidad = row[3] ?? ''; lastHeaderRowIndex = index; }
                         if (keyColA.startsWith("Enfoques transversales")) { metadata.enfoque = row[3] ?? ''; lastHeaderRowIndex = index; }
-                        if (keyColA.startsWith("PRESUPUESTO ORIGINAL")) {
+                        
+                        // Condición fortalecida: busca "PRESUPUESTO ORIGINAL" y verifica que la cabecera "Meta anual" esté 2 filas arriba en la columna E.
+                        if (keyColA.startsWith("PRESUPUESTO ORIGINAL") && index >= 2 && String(data[index - 2][4] || '').trim() === "Meta anual") {
                             metadata.presupuestoOriginal = { meta: row[4] ?? '', ejercido: row[5] ?? '', pct: row[6] ?? '' };
                             lastHeaderRowIndex = index;
                         }
-                        if (keyColA.startsWith("PRESUPUESTO MODIFICADO")) {
+                        // Condición fortalecida: busca "PRESUPUESTO MODIFICADO" y verifica que la cabecera "Meta anual" esté 3 filas arriba en la columna E.
+                        if (keyColA.startsWith("PRESUPUESTO MODIFICADO") && index >= 3 && String(data[index - 3][4] || '').trim() === "Meta anual") {
                             metadata.presupuestoModificado = { meta: row[4] ?? '', ejercido: row[5] ?? '', pct: row[6] ?? '' };
                             lastHeaderRowIndex = index;
                         }
