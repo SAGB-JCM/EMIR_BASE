@@ -1083,6 +1083,25 @@
                     log(`Procesando hoja 'Ramo': ${sheetName}`);
                     let data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
 
+                    // --- INICIO: Lógica para extraer "Nombre Ramo" (Requerimiento específico) ---
+                    let nombreRamo = '';
+                    // Buscar en la columna A (índice 0) antes de cualquier modificación
+                    for (const row of data) {
+                        const cellValue = String(row[0] || '').trim();
+                        if (cellValue.startsWith("Ramo")) {
+                            const parts = cellValue.split('\n');
+                            if (parts.length > 1) {
+                                nombreRamo = parts.slice(1).join(' ').trim(); // Tomar todo después del primer salto de línea
+                            } else {
+                                nombreRamo = cellValue; // Fallback si no hay salto de línea
+                            }
+                            log(`- Se encontró el nombre del Ramo: '${nombreRamo}'`);
+                            break; // Dejar de buscar una vez encontrado
+                        }
+                    }
+                    // --- FIN: Lógica para extraer "Nombre Ramo" ---
+
+
                     // 1. Buscar la fila de cabecera "Clave Programa presupuestario" en la columna B (índice 1)
                     const headerRowIndex = data.findIndex(row => String(row[1] || '').trim() === "Clave Programa presupuestario");
 
@@ -1101,6 +1120,12 @@
                     // 3. Eliminar la columna A (índice 0) de cada fila
                     data.forEach(row => row.splice(0, 1));
                     log(`- Se eliminó la columna A.`);
+
+                    // --- INICIO: Insertar el "Nombre Ramo" extraído en la columna I (índice 8) ---
+                    if (nombreRamo && data.length > 0) {
+                        data[0][8] = "Nombre Ramo"; // Añadir encabezado en la nueva columna I
+                        for (let i = 1; i < data.length; i++) data[i][8] = nombreRamo;
+                    }
 
                     // 4. Rellenar vacíos (lógica similar al Paso 6) en las primeras 6 columnas nuevas (ex B-G)
                     const NUM_COLS_TO_FILL = 6; // A-F
