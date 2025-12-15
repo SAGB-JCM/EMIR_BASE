@@ -749,33 +749,59 @@
                     // --- INICIO: Lógica de transformación de indicadores (Refactorizada) ---
                     const indicadoresIndex = data.findIndex(row => String(row[0] || '').trim() === "INDICADORES");
                     if (indicadoresIndex > -1) {
-                        const indicatorRows = data.slice(indicadoresIndex + 1);
-                        const consolidatedIndicators = [];
-                        let currentBlock = [];
-
-                        for (const row of indicatorRows) {
-                            const cellA = String(row[0] || '').trim();
-                            // Si encontramos "DENOMINACIÓN" y el bloque actual no está vacío, procesamos el bloque anterior.
-                            if (cellA === "DENOMINACIÓN" && currentBlock.length > 0) {
-                                const consolidatedRow = processIndicatorBlock(currentBlock);
-                                if (consolidatedRow) consolidatedIndicators.push(consolidatedRow);
-                                currentBlock = []; // Empezamos un nuevo bloque
+                        // Encontrar dónde termina la sección de indicadores (antes de "Justificación...")
+                        const stopTexts = [
+                            "Justificación de diferencia de avances con respecto a las metas programadas",
+                            "Justificación del ajuste a las metas"
+                        ];
+                        
+                        let endIndex = data.length; // Por defecto, hasta el final
+                        for (let i = indicadoresIndex + 1; i < data.length; i++) {
+                            const cellText = String(data[i][0] || '').trim();
+                            if (stopTexts.some(stopText => cellText.includes(stopText))) {
+                                endIndex = i;
+                                break;
                             }
-                            currentBlock.push(row);
                         }
-                        // Procesar el último bloque
-                        if (currentBlock.length > 0) {
+                        
+                        const indicatorRows = data.slice(indicadoresIndex + 1, endIndex); // ✅ Solo hasta antes de Justificación
+                        const consolidatedIndicators = [];
+                        
+                        // 1. Encontrar los índices de inicio de cada bloque de indicador.
+                        // Un bloque comienza con una fila que contiene "DENOMINACIÓN".
+                        const blockStartIndexes = [];
+                        indicatorRows.forEach((row, index) => {
+                            if (String(row[0] || '').trim() === "DENOMINACIÓN") {
+                                blockStartIndexes.push(index);
+                            }
+                        });
+
+                        // 2. Iterar sobre los índices de inicio para definir y procesar cada bloque.
+                        for (let i = 0; i < blockStartIndexes.length; i++) {
+                            const start = blockStartIndexes[i];
+                            // El final del bloque es el inicio del siguiente, o el final del array si es el último.
+                            const end = (i + 1 < blockStartIndexes.length) ? blockStartIndexes[i + 1] : indicatorRows.length;
+                            const currentBlock = indicatorRows.slice(start, end);
+
+                            // 3. Procesar el bloque actual y añadirlo a los resultados si es válido.
                             const consolidatedRow = processIndicatorBlock(currentBlock);
                             if (consolidatedRow) consolidatedIndicators.push(consolidatedRow);
                         }
 
-                        // Reemplazar las filas de indicadores originales con las nuevas filas consolidadas
+                        // 4. Reemplazar las filas de indicadores originales con las nuevas filas consolidadas.
+                        // Se eliminan todas las filas desde "INDICADORES" hasta el final y se insertan las consolidadas.
                         data.splice(indicadoresIndex, data.length - indicadoresIndex, ...consolidatedIndicators);
                     }
 
                     function processIndicatorBlock(block) {
-                        if (!block || block.length === 0) return null;
-
+                        console.log('=== PROCESANDO BLOQUE ===');
+                        console.log('Tamaño del bloque:', block.length);
+                        console.log('Primera fila:', block[0]);
+                        // Un bloque válido debe tener al menos la fila "DENOMINACIÓN" y la fila del nombre.
+                        if (!block || block.length < 2) {
+                            console.log('❌ Bloque inválido o demasiado corto, omitiendo.');
+                            return null;
+                        }
                         let baseRow = undefined;
                         const pivotedValues = {
                             aprobada: undefined,
@@ -784,18 +810,21 @@
                             avance: undefined
                         };
 
-                        // 1. Encontrar la fila base, que es la que contiene el nombre del indicador.
-                        // Esta suele estar después de una o más filas "DENOMINACIÓN".
+                        // 1. Encontrar la fila base (la que contiene el nombre del indicador).
+                        // Esta es la primera fila después de "DENOMINACIÓN" que no está vacía en la columna A.
                         let lastRowWasDenominacion = false;
                         for (const row of block) {
                             const cellA = String(row[0] || '').trim();
                             if (cellA === "DENOMINACIÓN") {
                                 lastRowWasDenominacion = true;
                             } else if (lastRowWasDenominacion && cellA !== "") {
-                                baseRow = [...row]; // Encontramos la fila con el nombre, la copiamos.
+                                baseRow = [...row]; // Copiamos la fila para no modificar la original.
                                 break; // Salimos del bucle una vez encontrada.
                             }
                         }
+
+                        // Si no se encuentra una fila base (por ejemplo, un bloque con solo "DENOMINACIÓN"), se omite.
+                        if (!baseRow) return null;
 
                         // Si no encontramos una fila base (nombre del indicador), no podemos consolidar.
                         if (!baseRow) return null;
