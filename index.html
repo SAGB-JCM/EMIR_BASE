@@ -962,10 +962,20 @@
                     // --- FIN: Lógica 3.1 Fortalecida ---
 
                     // Filter out the marked rows
-                    let cleanedData = data.filter((_, index) => {
-                        // Mantener la fila de encabezado, y eliminar las filas marcadas por ambas lógicas de borrado
+                    let cleanedData;
+                    if (typeof indicadoresIndex !== 'undefined' && indicadoresIndex > -1) {
+                      const rowsToDeleteSafe = new Set();
+                      for (const idx of rowsToDelete) {
+                        if (idx < indicadoresIndex) rowsToDeleteSafe.add(idx);
+                      }
+                      cleanedData = data.filter((_, index) => {
+                        return index === headerRowIndex || !rowsToDeleteSafe.has(index);
+                      });
+                    } else {
+                      cleanedData = data.filter((_, index) => {
                         return index === headerRowIndex || !rowsToDelete.has(index);
-                    });
+                      });
+                    }
 
                     // Add new headers and data
                     if (cleanedData.length > 0) {
