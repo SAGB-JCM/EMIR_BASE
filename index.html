@@ -986,11 +986,6 @@
                       });
                     }
 
-                    // Asegurarse de que el encabezado NIVEL (columna 29, índice 28) se mantenga si fue añadido
-                    if (cleanedData.length > 0 && cleanedData[0][28] === "NIVEL") {
-                        // Esta es una salvaguarda. Si otra lógica borró el encabezado, lo restauramos.
-                        cleanedData[0][28] = "NIVEL";
-                    }
 
                     // Add new headers and data
                     if (cleanedData.length > 0) {
@@ -1006,14 +1001,15 @@
 
                         // Añadir encabezados de pivote
                         if (indicadoresIndex > -1) {
-                            // CORRECCIÓN: Asegurar que los encabezados de A-E se mantengan en la fila 0.
-                            // La lógica de `processIndicatorBlock` puede haber reemplazado la fila de encabezado.
+                            // CORRECCIÓN FINAL: Asegurar que todos los encabezados importantes se mantengan o se restauren
+                            // en la fila 0, ya que la lógica de indicadores puede sobrescribirla.
                             const headerRow = cleanedData[0];
                             headerRow[0] = "DENOMINACIÓN";
                             headerRow[1] = "OBJETIVOS";
                             headerRow[2] = "MÉTODO DE CÁLCULO";
                             headerRow[3] = "UNIDAD DE MEDIDA";
                             headerRow[4] = "TIPO-DIMENSIÓN-FRECUENCIA";
+                            if (headerRow[21] === "NIVEL") headerRow[21] = "NIVEL"; // Restaurar encabezado NIVEL
                             // Encabezados de Metas a partir de AF (índice 31)
                             const pivotHeaders = [
                                 "Meta Anual Aprobada",
