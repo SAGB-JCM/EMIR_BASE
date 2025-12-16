@@ -259,6 +259,7 @@
         // === STATE MANAGEMENT ===
         const STATE = {
             zipFiles: [], // Array of objects { name, data (arraybuffer) }
+            fidMarkedSheetNames: new Set(), // Set to store unique names of sheets to be marked as FID
             wbStep1: null, // The workbook object after Step 1
             wbStep2: null, // The workbook object after Step 2
             wbStep3: null, // The workbook object after Step 3,
@@ -481,6 +482,7 @@
             try {
                 // Create a new master workbook
                 const masterWb = XLSX.utils.book_new();
+                STATE.fidMarkedSheetNames.clear(); // Reset on each run
                 const usedSheetNames = new Set();
                 let filesProcessed = 0;
                 let sheetsCopied = 0;
@@ -489,11 +491,13 @@
                     try {
                         // Read the excel file from buffer
                         const wb = XLSX.read(file.data, { type: 'array' });
+                        let isAfterFidSheet = false;
                         
                         wb.SheetNames.forEach(sheetName => {
-                            // REQUERIMIENTO: Ignorar hojas que empiezan con "FID"
+                            // REQUERIMIENTO: Usar hojas "FID" como marcador, pero no incluirlas.
                             if (sheetName.toUpperCase().startsWith('FID')) {
                                 log(`Omitiendo hoja '${sheetName}' del archivo '${file.fileNameSimple}' porque empieza con 'FID'.`);
+                                isAfterFidSheet = true; // Marcar que las siguientes hojas en este libro son FID
                                 return; // Saltar esta hoja
                             }
 
@@ -507,6 +511,11 @@
                                 counter++;
                             }
                             usedSheetNames.add(uniqueName);
+
+                            // Si estamos después de una hoja FID en este libro, marcamos esta hoja.
+                            if (isAfterFidSheet) {
+                                STATE.fidMarkedSheetNames.add(uniqueName);
+                            }
 
                             // Add to master workbook
                             XLSX.utils.book_append_sheet(masterWb, ws, uniqueName);
@@ -977,6 +986,12 @@
                       });
                     }
 
+                    // Asegurarse de que el encabezado NIVEL (columna 29, índice 28) se mantenga si fue añadido
+                    if (cleanedData.length > 0 && cleanedData[0][28] === "NIVEL") {
+                        // Esta es una salvaguarda. Si otra lógica borró el encabezado, lo restauramos.
+                        cleanedData[0][28] = "NIVEL";
+                    }
+
                     // Add new headers and data
                     if (cleanedData.length > 0) {
                         const headers = [
@@ -1122,9 +1137,13 @@
                     log(`- Se eliminó la columna A.`);
 
                     // --- INICIO: Insertar el "Nombre Ramo" extraído en la columna I (índice 8) ---
-                    if (nombreRamo && data.length > 0) {
+                    // MEJORA: Asegurar que la columna se cree siempre para evitar desfases, incluso si nombreRamo está vacío.
+                    if (data.length > 0) {
                         data[0][8] = "Nombre Ramo"; // Añadir encabezado en la nueva columna I
-                        for (let i = 1; i < data.length; i++) data[i][8] = nombreRamo;
+                        // Solo rellenar si se encontró un valor.
+                        if (nombreRamo) {
+                            for (let i = 1; i < data.length; i++) data[i][8] = nombreRamo;
+                        }
                     }
 
                     // 4. Rellenar vacíos (lógica similar al Paso 6) en las primeras 6 columnas nuevas (ex B-G)
@@ -1194,6 +1213,7 @@
                         // La primera fila de 'data' es la cabecera del paso 3.
                         const headerRow = data[0];
                         headerRow.push("NOMBRE_HOJA_ORIGEN");
+                        headerRow.push("ES_FID"); // Nuevo encabezado para la marca FID
                         targetArray.push(headerRow);
                     }
 
@@ -1212,6 +1232,10 @@
                             if (!isRowEffectivelyEmpty) {
                                 const dataRow = row;
                                 dataRow.push(sheetName); // Añadir el nombre de la hoja origen
+                                
+                                // Añadir la marca "FID" si corresponde
+                                const isFidMarked = STATE.fidMarkedSheetNames.has(sheetName);
+                                dataRow.push(isFidMarked ? "FID" : "");
                                 targetArray.push(dataRow);
                             }
                         }
