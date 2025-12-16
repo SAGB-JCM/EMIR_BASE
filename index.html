@@ -838,12 +838,14 @@
             const COL_AVANCE_PCT = "Avance %";
             const COL_META_APROBADA = "Meta Anual Aprobada";
             const COL_META_AJUSTADA = "Meta Anual Ajustada";
+            const COL_UR_UNIFICADA = "Unidad Responsable (Unificada)";
 
             return data.map(row => {
                 const newRow = { ...row };
                 const avance = parseFloat(newRow[COL_AVANCE_PCT]);
                 const metaAprobada = newRow[COL_META_APROBADA];
                 const metaAjustada = newRow[COL_META_AJUSTADA];
+                const ur = String(newRow[COL_UR_UNIFICADA] || '').trim();
 
                 let avanceAcotado;
 
@@ -905,6 +907,17 @@
                     pcum = avanceAcotado + penalizacion;
                 }
                 newRow["PCUM"] = pcum;
+
+                // --- Lógica para Dependencia/Entidad ---
+                let tipoUR = "Entidad"; // Valor por defecto
+                if (ur) {
+                    const firstThreeChars = ur.substring(0, 3);
+                    // Comprueba si los 3 caracteres son numéricos.
+                    if (!isNaN(firstThreeChars) && !isNaN(parseFloat(firstThreeChars))) {
+                        tipoUR = "Dependencia";
+                    }
+                }
+                newRow["Tipo UR"] = tipoUR;
 
                 return newRow;
             });
