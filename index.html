@@ -94,6 +94,24 @@
         </div>
     </div>
 
+    <!-- PCUM Info Modal -->
+    <div id="pcumInfoModal" class="hidden fixed inset-0 z-50">
+        <!-- Backdrop -->
+        <div onclick="togglePcumInfoModal()" class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
+        <!-- Modal Content -->
+        <div class="modal-content relative bg-white rounded-lg shadow-xl p-8 m-4 max-w-lg mx-auto mt-20 border-t-4 border-[#A6802D]">
+            <h2 class="font-bold text-2xl mb-4 text-[#A6802D]"><i class="fa-solid fa-circle-info mr-2"></i>Metodología de Cálculo PCUM</h2>
+            <p class="text-gray-700 space-y-2 mb-6">
+                La metodología usada para el cálculo se establece en el proyecto de Metodología de Evaluación de la Gestión Gubernamental 2023.
+            </p>
+            <button onclick="downloadPcumMethodology()" class="bg-[#1E5B4F] text-white px-4 py-2 rounded hover:bg-opacity-90 transition flex items-center gap-2">
+                <i class="fa-solid fa-download"></i>
+                <span>Descargar Metodología</span>
+            </button>
+            <button onclick="togglePcumInfoModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+        </div>
+    </div>
+
     <!-- Steps Modal -->
     <div id="stepsModal" class="hidden fixed inset-0 z-50">
         <!-- Backdrop -->
@@ -215,14 +233,27 @@
     </div>
 
     <div class="container mx-auto px-4 py-8 max-w-6xl">
-        
+
         <!-- Header -->
         <header class="mb-10 text-center flex flex-col items-center">
-            <img src="https://github.com/SAGB-JCM/EMIR_BASE/blob/main/Gemini_Generated_Image_gfdjv0gfdjv0gfdj.png?raw=true" alt="Logo" class="w-24 h-24 mb-4 rounded-md shadow-lg">
-            <h1 class="text-4xl font-bold text-[#9C2348] mb-2">
-                Consolidador de Matrices de Indicadores (EMIR)
+            <img src="https://github.com/SAGB-JCM/EMIR_BASE/blob/main/Gemini_Generated_Image_gfdjv0gfdjv0gfdj.png?raw=true" 
+                alt="Logo" class="w-24 h-24 mb-4 rounded-md shadow-lg">
+
+            <h1 class="text-4xl font-bold text-[#9C2348] mb-4">
+                Evaluación de la Gestión Gubernamental 2024 (EEG)
             </h1>
-            <p class="text-gray-600 max-w-3xl">Herramienta elaborada en el marco del contrato de prestación de servicios DC-620-2025 con el objetivo de consolidar las Matrices de Indicadores para Resultados de la Cuenta Pública 2024.</p>
+
+            <p class="text-gray-600 max-w-3xl text-justify">
+                Herramienta diseñada para facilitar el cálculo, análisis y validación de los
+                indicadores Porcentaje de Cumplimiento de Metas de Desempeño (PCUM) 2024 y
+                Desempeño de la Entrega de Productos de los Programas Presupuestarios en los
+                que participa el Ente Público (DPP) 2024, mediante la extracción y
+                procesamiento automatizado de metadatos provenientes de la información
+                oficial publicada en la Cuenta Pública y en el Portal de Transparencia
+                Presupuestaria. Su propósito es apoyar la evaluación objetiva del avance en
+                metas, resultados y productos institucionales, fortaleciendo la rendición
+                de cuentas y el seguimiento del desempeño gubernamental.
+            </p>
         </header>
 
         <!-- Tab Navigation -->
@@ -230,7 +261,7 @@
             <div class="border-b border-gray-300">
                 <nav class="flex -mb-px space-x-4" aria-label="Tabs">
                     <button onclick="switchTab(event, 'emir')" class="tab-btn active whitespace-nowrap py-3 px-5 border-b-4 font-medium text-lg transition-colors duration-300">
-                        <i class="fa-solid fa-gears mr-2"></i>Consolidador EMIR
+                        <i class="fa-solid fa-gears mr-2"></i>Consolidadar MIR
                     </button>
                     <button onclick="switchTab(event, 'reports')" class="tab-btn whitespace-nowrap py-3 px-5 border-b-4 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-400 font-medium text-lg transition-colors duration-300">
                         <i class="fa-solid fa-chart-pie mr-2"></i>Reportes
@@ -241,9 +272,6 @@
 
         <!-- Tab Content -->
         <div id="emir" class="tab-content">
-
-
-
 
         <!-- Info Button -->
         <div class="relative mb-8">
@@ -286,10 +314,42 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Input Section for Indicadores -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <!-- Parte 3: Descargar Indicadores -->
+                <div class="border border-gray-200 rounded-lg p-6 bg-gray-50 text-center">
+                    <i class="fa-solid fa-cloud-arrow-down text-4xl text-gray-400 mb-4"></i>
+                    <h3 class="font-bold mb-2">Paso 3: Obtener Archivo de Indicadores</h3>
+                    <p class="text-sm text-gray-600 mb-4">Descargue el archivo CSV con el avance de indicadores del año seleccionado.</p>
+                    <button onclick="openIndicadoresDownloadLink()" class="bg-[#1E5B4F] text-white px-4 py-2 rounded hover:bg-opacity-90 transition flex items-center gap-2 mx-auto">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Descargar CSV de Indicadores</span>
+                    </button>
+                </div>
+
+                <!-- Parte 4: Subir CSV Local -->
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#9C2348] transition-colors h-full flex flex-col justify-center">
+                     <i class="fa-solid fa-upload text-4xl text-gray-400 mb-4"></i>
+                    <h3 class="font-bold mb-2">Paso 4: Cargar Archivo de Indicadores</h3>
+                    <p class="text-sm text-gray-600 mb-4">Una vez descargado, súbalo aquí para su futuro uso.</p>
+                    <input type="file" id="indicadoresFileInput" accept=".csv" class="hidden" onchange="handleIndicadoresFileUpload(this)">
+                    <label for="indicadoresFileInput" class="cursor-pointer bg-[#9C2348] text-white px-4 py-2 rounded hover:bg-opacity-90 transition">
+                        Seleccionar Archivo .csv
+                    </label>
+                </div>
+            </div>
+        </div>
 
         <!-- Log & Status Area -->
         <div id="statusArea" class="hidden bg-gray-900 text-green-400 font-mono text-sm p-4 rounded-lg mb-8 h-48 overflow-y-auto shadow-inner">
             <div id="logContent">Esperando archivo...</div>
+        </div>
+
+        <!-- Indicadores Status Area -->
+        <div id="indicadoresStatusArea" class="hidden bg-gray-900 text-blue-300 font-mono text-sm p-4 rounded-lg mb-8 h-32 overflow-y-auto shadow-inner">
+            <div id="indicadoresLogContent">Esperando archivo de indicadores...</div>
         </div>
 
         <!-- Preview Section -->
@@ -401,17 +461,25 @@
                             <ul id="kpiDesgloseRamos" class="text-sm text-gray-700 space-y-1 max-h-48 overflow-y-auto"></ul>
                         </div>
                     </div>
-                    <!-- KPI 4: PCUM -->
-                    <div id="kpiCard4" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer" onclick="toggleKpiDetail('kpiDetail4')">
-                        <div class="p-5">
-                            <p class="text-sm text-gray-500 uppercase">Promedio PCUM General</p>
-                            <p id="kpiPromedioPcum" class="text-4xl font-bold text-blue-600">0.00</p>
-                            <p class="text-xs text-gray-400">Promedio del Puntaje de Cumplimiento (clic para ver desglose)</p>
+                </div>
+                <!-- KPI 4: PCUM (movido a una nueva fila para destacarlo) -->
+                <div id="kpiCard4" class="lg:col-span-3 bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transition-all duration-300" onclick="toggleKpiDetail('kpiDetail4')">
+                    <div class="p-5">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-gray-500 uppercase flex items-center">
+                                    Promedio PCUM General
+                                    <i onclick="event.stopPropagation(); togglePcumInfoModal();" class="fa-solid fa-circle-info text-blue-500 ml-2 cursor-pointer hover:text-blue-700" title="Ver metodología de cálculo"></i>
+                                </p>
+                                <p id="kpiPromedioPcum" class="text-4xl font-bold">0.00</p>
+                            </div>
+                             <span id="pcumStatus" class="text-sm font-bold px-3 py-1 rounded-full"></span>
                         </div>
-                        <div id="kpiDetail4" class="kpi-card-detail bg-gray-50 border-t border-gray-200 px-5 py-3">
-                            <h4 class="font-bold text-sm mb-2 text-gray-600">PCUM por Ramo</h4>
-                            <ul id="kpiPcumPorRamo" class="text-sm text-gray-700 space-y-1 max-h-48 overflow-y-auto"></ul>
-                        </div>
+                        <p class="text-xs text-gray-400 mt-1">Promedio del Puntaje de Cumplimiento (clic para ver desglose)</p>
+                    </div>
+                    <div id="kpiDetail4" class="kpi-card-detail bg-gray-50 border-t border-gray-200 px-5 py-3">
+                        <h4 class="font-bold text-sm mb-2 text-gray-600">PCUM por Ramo</h4>
+                        <ul id="kpiPcumPorRamo" class="text-sm text-gray-700 space-y-1 max-h-48 overflow-y-auto"></ul>
                     </div>
                 </div>
             </div>
@@ -432,7 +500,8 @@
             wbStep4: null, // The workbook object after Step 4
             wbStep5: null, // The workbook object after Step 5
             wbStep6: null, // The workbook object after Step 6
-            reportData: [] // Array of objects for the report tab
+            reportData: [], // Array of objects for the report tab
+            indicadoresData: null // Data from the uploaded indicadores CSV
         };
 
         // === LOGGING UTILS ===
@@ -448,6 +517,16 @@
         function toggleInstructions() {
             const modal = document.getElementById('instructionsModal');
             modal.classList.toggle('hidden');
+        }
+
+        function togglePcumInfoModal() {
+            const modal = document.getElementById('pcumInfoModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function downloadPcumMethodology() {
+            const url = 'https://www.gob.mx/buengobierno/documentos/evaluacion-de-la-gestion-gubernamental-2023?state=published';
+            window.open(url, '_blank');
         }
 
         // === TAB SWITCHING LOGIC ===
@@ -575,7 +654,7 @@
                 }
 
                 // KPI 4: Acumular PCUM
-                if (typeof pcum === 'number' && isFinite(pcum)) {
+                if (typeof pcum === 'number') {
                     sumaPcumTotal += pcum;
                     countPcumValidos++;
                     if (ramo && String(ramo).trim() !== '') {
@@ -628,7 +707,27 @@
 
             // --- Rellenar KPI 4 (PCUM) ---
             const promedioPcum = countPcumValidos > 0 ? (sumaPcumTotal / countPcumValidos) : 0;
-            document.getElementById('kpiPromedioPcum').textContent = promedioPcum.toFixed(2);
+            const kpiPcumElement = document.getElementById('kpiPromedioPcum');
+            const kpiCard4 = document.getElementById('kpiCard4');
+            const pcumStatus = document.getElementById('pcumStatus');
+
+            kpiPcumElement.textContent = promedioPcum.toFixed(2);
+
+            // Lógica de colores y etiquetas para PCUM
+            kpiCard4.classList.remove('border-green-500', 'border-yellow-500', 'border-red-500', 'bg-green-50', 'bg-yellow-50', 'bg-red-50');
+            if (promedioPcum >= 70) {
+                kpiCard4.classList.add('border-l-4', 'border-green-500');
+                pcumStatus.textContent = 'Adecuado';
+                pcumStatus.className = 'text-sm font-bold px-3 py-1 rounded-full bg-green-100 text-green-800';
+            } else if (promedioPcum >= 50) {
+                kpiCard4.classList.add('border-l-4', 'border-yellow-500');
+                pcumStatus.textContent = 'Regular';
+                pcumStatus.className = 'text-sm font-bold px-3 py-1 rounded-full bg-yellow-100 text-yellow-800';
+            } else {
+                kpiCard4.classList.add('border-l-4', 'border-red-500');
+                pcumStatus.textContent = 'Deficiente';
+                pcumStatus.className = 'text-sm font-bold px-3 py-1 rounded-full bg-red-100 text-red-800';
+            }
 
             const kpiPcumPorRamoList = document.getElementById('kpiPcumPorRamo');
             kpiPcumPorRamoList.innerHTML = '';
@@ -662,6 +761,44 @@
             const url = `https://www.cuentapublica.hacienda.gob.mx/work/models/CP/${year}/tomo/III/E_MIR.zip`;
             log(`Abriendo enlace de descarga para el año ${year} en una nueva pestaña...`);
             window.open(url, '_blank');
+        }
+
+        function openIndicadoresDownloadLink() {
+            const year = document.getElementById('yearSelector').value;
+            if (!year) {
+                log("Por favor, seleccione un año.", "error");
+                return;
+            }
+            const url = `https://nptp.hacienda.gob.mx/programas/DownloadServlet?fileName=/WbasketNPTP/programas/DescargaIndicadores/prog_avance_de_indicadores_${year}.csv`;
+            log(`Abriendo enlace de descarga de indicadores para el año ${year}...`, 'info');
+            window.open(url, '_blank');
+        }
+
+        async function handleIndicadoresFileUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const statusArea = document.getElementById('indicadoresStatusArea');
+            const logContent = document.getElementById('indicadoresLogContent');
+            statusArea.classList.remove('hidden');
+            logContent.innerHTML = `<div class="text-yellow-300">Cargando archivo ${file.name}...</div>`;
+
+            try {
+                const text = await file.text();
+                // Usamos PapaParse (incluido en SheetJS) para parsear el CSV de forma robusta
+                const result = XLSX.utils.sheet_to_json(XLSX.read(text, {type: 'string'}).Sheets.Sheet1, {header: 1});
+                
+                STATE.indicadoresData = result;
+
+                const rowCount = result.length;
+                const colCount = rowCount > 0 ? result[0].length : 0;
+
+                logContent.innerHTML = `<div class="text-green-300">Archivo cargado: ${file.name}</div>`;
+                logContent.innerHTML += `<div><span class="font-bold">Renglones:</span> ${rowCount}</div>`;
+                logContent.innerHTML += `<div><span class="font-bold">Columnas:</span> ${colCount}</div>`;
+            } catch (e) {
+                logContent.innerHTML = `<div class="text-red-500">Error al procesar el archivo CSV: ${e.message}</div>`;
+            }
         }
 
         async function processZip(blobOrFile) {
