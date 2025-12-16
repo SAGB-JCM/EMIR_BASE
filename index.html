@@ -73,6 +73,126 @@
         </div>
     </div>
 
+    <!-- Steps Modal -->
+    <div id="stepsModal" class="hidden fixed inset-0 z-50">
+        <!-- Backdrop -->
+        <div onclick="toggleStepsModal()" class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
+        <!-- Modal Content -->
+        <div class="modal-content relative bg-gray-100 rounded-lg shadow-xl p-8 m-4 max-w-7xl w-full mx-auto mt-10">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-bold text-2xl text-[#9C2348]">Procesamiento Manual por Pasos</h2>
+                <button onclick="toggleStepsModal()" class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button>
+            </div>
+            <!-- Processing Steps (Wizard) -->
+            <div id="processingSteps" class="hidden grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+                <!-- Step 1 -->
+                <div id="cardStep1" class="step-card bg-white p-4 rounded-lg shadow border-l-4 border-[#9C2348]">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-lg">Paso 1</h3>
+                        <span class="text-xs bg-red-100 text-[#9C2348] px-2 py-1 rounded">Consolidar Libros</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">Une todos los archivos del ZIP en un solo libro de Excel.</p>
+                    <button onclick="runStep1()" class="w-full bg-[#9C2348] text-white py-2 rounded hover:bg-opacity-90 transition flex justify-center items-center gap-2">
+                        <span>Ejecutar</span>
+                    </button>
+                    <button id="dlStep1" onclick="downloadStep(1)" class="hidden mt-2 w-full border border-[#9C2348] text-[#9C2348] py-1 rounded hover:bg-red-50 text-sm">
+                        <i class="fa-solid fa-download"></i> Descargar
+                    </button>
+                </div>
+
+                <!-- Step 2 -->
+                <div id="cardStep2" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-teal-500">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-lg">Paso 2</h3>
+                        <span class="text-xs bg-teal-100 text-teal-800 px-2 py-1 rounded">Formato Relacional</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">Limpia y transforma hojas (no "Ramo") a formato relacional.</p>
+                    <button onclick="runStep2()" class="w-full bg-teal-600 text-white py-2 rounded hover:bg-teal-700 transition flex justify-center items-center gap-2">
+                        <span>Ejecutar</span>
+                    </button>
+                    <button id="dlStep2" onclick="downloadStep(2)" class="hidden mt-2 w-full border border-teal-600 text-teal-600 py-1 rounded hover:bg-teal-50 text-sm">
+                        <i class="fa-solid fa-download"></i> Descargar
+                    </button>
+                </div>
+
+                <!-- Step 3 -->
+                <div id="cardStep3" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-indigo-500">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-lg">Paso 3</h3>
+                        <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded">Extraer Datos</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">Extrae Eje, Programa, Objetivo y Clasificación Funcional.</p>
+                    <button onclick="runStep3()" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition flex justify-center items-center gap-2">
+                        <span>Ejecutar</span>
+                    </button>
+                    <button id="dlStep3" onclick="downloadStep(3)" class="hidden mt-2 w-full border border-indigo-600 text-indigo-600 py-1 rounded hover:bg-indigo-50 text-sm">
+                        <i class="fa-solid fa-download"></i> Descargar
+                    </button>
+                </div>
+
+                <!-- Step 3.1 -->
+                <div id="cardStep3_1" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-cyan-500">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-lg">Paso 3.1</h3>
+                        <span class="text-xs bg-cyan-100 text-cyan-800 px-2 py-1 rounded">Limpiar "Ramo"</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">Limpia, recorta y rellena las hojas cuyo nombre empieza con "Ramo".</p>
+                    <button onclick="runStep3_1()" class="w-full bg-cyan-600 text-white py-2 rounded hover:bg-cyan-700 transition flex justify-center items-center gap-2">
+                        <span>Ejecutar</span>
+                    </button>
+                    <button id="dlStep3_1" onclick="downloadStep('3.1')" class="hidden mt-2 w-full border border-cyan-600 text-cyan-600 py-1 rounded hover:bg-cyan-50 text-sm">
+                        <i class="fa-solid fa-download"></i> Descargar
+                    </button>
+                </div>
+
+                <!-- Step 4 -->
+                <div id="cardStep4" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-purple-500">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-lg">Paso 4</h3>
+                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Unificar Hojas</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">Une todas las hojas en dos grupos: Ramo y General.</p>
+                    <button onclick="runStep4()" class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition flex justify-center items-center gap-2">
+                        <span>Ejecutar</span>
+                    </button>
+                    <button id="dlStep4" onclick="downloadStep(4)" class="hidden mt-2 w-full border border-purple-600 text-purple-600 py-1 rounded hover:bg-purple-50 text-sm">
+                        <i class="fa-solid fa-download"></i> Descargar
+                    </button>
+                </div>
+
+                <!-- Step 5 -->
+                <div id="cardStep5" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-orange-500">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-lg">Paso 5</h3>
+                        <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">Descombinar</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">Elimina celdas combinadas en la hoja consolidada.</p>
+                    <button onclick="runStep5()" class="hidden w-full bg-orange-600 text-white py-2 rounded hover:bg-orange-700 transition flex justify-center items-center gap-2">
+                        <span>Ejecutar</span>
+                    </button>
+                    <button id="dlStep5" onclick="downloadStep(5)" class="hidden mt-2 w-full border border-orange-600 text-orange-600 py-1 rounded hover:bg-orange-50 text-sm">
+                        <i class="fa-solid fa-download"></i> Descargar
+                    </button>
+                </div>
+
+                <!-- Step 6 -->
+                <div id="cardStep6" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-lg">Paso 6</h3>
+                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Rellenar Vacíos</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">Rellena celdas vacías en Columnas A-F con el valor superior.</p>
+                    <button onclick="runStep6()" class="hidden w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition flex justify-center items-center gap-2">
+                        <span>Ejecutar</span>
+                    </button>
+                    <button id="dlStep6" onclick="downloadStep(6)" class="hidden mt-2 w-full border border-green-600 text-green-600 py-1 rounded hover:bg-green-50 text-sm">
+                        <i class="fa-solid fa-download"></i> Descargar Final
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container mx-auto px-4 py-8 max-w-6xl">
         
         <!-- Header -->
@@ -158,121 +278,15 @@
             <div class="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div>
                     <h2 class="text-xl font-bold text-[#9C2348]">Proceso Completo (Recomendado)</h2>
-                    <p class="text-gray-600 text-sm mt-1">Ejecuta todos los pasos necesarios (1, 2, 3, 3.1 y 4) y descarga el archivo final con un solo clic.</p>
+                    <p class="text-gray-600 text-sm mt-1">Ejecuta todos los pasos y descarga el archivo final con un solo clic.</p>
                 </div>
-                <button id="runAllBtn" onclick="runAllSteps()" class="w-full md:w-auto bg-[#9C2348] text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-transform transform hover:scale-105 flex justify-center items-center gap-2 font-bold shadow-md hover:shadow-lg">
-                    <i class="fa-solid fa-rocket"></i>
-                    <span>Ejecutar Todo y Descargar</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Processing Steps (Wizard) -->
-        <div id="processingSteps" class="hidden grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
-            
-            <!-- Step 1 -->
-            <div id="cardStep1" class="step-card bg-white p-4 rounded-lg shadow border-l-4 border-[#9C2348]">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="font-bold text-lg">Paso 1</h3>
-                    <span class="text-xs bg-red-100 text-[#9C2348] px-2 py-1 rounded">Consolidar Libros</span>
+                <div class="flex flex-col items-center gap-2 w-full md:w-auto">
+                    <button id="runAllBtn" onclick="runAllSteps()" class="w-full md:w-auto bg-[#9C2348] text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-transform transform hover:scale-105 flex justify-center items-center gap-2 font-bold shadow-md hover:shadow-lg">
+                        <i class="fa-solid fa-rocket"></i>
+                        <span>Ejecutar Todo y Descargar</span>
+                    </button>
+                    <button id="showStepsBtn" onclick="toggleStepsModal()" class="hidden text-sm text-blue-600 hover:underline">Ver Pasos Individuales</button>
                 </div>
-                <p class="text-sm text-gray-600 mb-4">Une todos los archivos del ZIP en un solo libro de Excel.</p>
-                <button onclick="runStep1()" class="w-full bg-[#9C2348] text-white py-2 rounded hover:bg-opacity-90 transition flex justify-center items-center gap-2">
-                    <span>Ejecutar</span>
-                </button>
-                <button id="dlStep1" onclick="downloadStep(1)" class="hidden mt-2 w-full border border-[#9C2348] text-[#9C2348] py-1 rounded hover:bg-red-50 text-sm">
-                    <i class="fa-solid fa-download"></i> Descargar
-                </button>
-            </div>
-
-            <!-- Step 2 -->
-            <div id="cardStep2" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-teal-500">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="font-bold text-lg">Paso 2</h3>
-                    <span class="text-xs bg-teal-100 text-teal-800 px-2 py-1 rounded">Formato Relacional</span>
-                </div>
-                <p class="text-sm text-gray-600 mb-4">Limpia y transforma hojas (no "Ramo") a formato relacional.</p>
-                <button onclick="runStep2()" class="w-full bg-teal-600 text-white py-2 rounded hover:bg-teal-700 transition flex justify-center items-center gap-2">
-                    <span>Ejecutar</span>
-                </button>
-                <button id="dlStep2" onclick="downloadStep(2)" class="hidden mt-2 w-full border border-teal-600 text-teal-600 py-1 rounded hover:bg-teal-50 text-sm">
-                    <i class="fa-solid fa-download"></i> Descargar
-                </button>
-            </div>
-
-            <!-- Step 3 -->
-            <div id="cardStep3" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-indigo-500">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="font-bold text-lg">Paso 3</h3>
-                    <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded">Extraer Datos</span>
-                </div>
-                <p class="text-sm text-gray-600 mb-4">Extrae Eje, Programa, Objetivo y Clasificación Funcional.</p>
-                <button onclick="runStep3()" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition flex justify-center items-center gap-2">
-                    <span>Ejecutar</span>
-                </button>
-                <button id="dlStep3" onclick="downloadStep(3)" class="hidden mt-2 w-full border border-indigo-600 text-indigo-600 py-1 rounded hover:bg-indigo-50 text-sm">
-                    <i class="fa-solid fa-download"></i> Descargar
-                </button>
-            </div>
-
-            <!-- Step 3.1 -->
-            <div id="cardStep3_1" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-cyan-500">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="font-bold text-lg">Paso 3.1</h3>
-                    <span class="text-xs bg-cyan-100 text-cyan-800 px-2 py-1 rounded">Limpiar "Ramo"</span>
-                </div>
-                <p class="text-sm text-gray-600 mb-4">Limpia, recorta y rellena las hojas cuyo nombre empieza con "Ramo".</p>
-                <button onclick="runStep3_1()" class="w-full bg-cyan-600 text-white py-2 rounded hover:bg-cyan-700 transition flex justify-center items-center gap-2">
-                    <span>Ejecutar</span>
-                </button>
-                <button id="dlStep3_1" onclick="downloadStep('3.1')" class="hidden mt-2 w-full border border-cyan-600 text-cyan-600 py-1 rounded hover:bg-cyan-50 text-sm">
-                    <i class="fa-solid fa-download"></i> Descargar
-                </button>
-            </div>
-
-            <!-- Step 4 -->
-            <div id="cardStep4" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-purple-500">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="font-bold text-lg">Paso 4</h3>
-                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Unificar Hojas</span>
-                </div>
-                <p class="text-sm text-gray-600 mb-4">Une todas las hojas en dos grupos: Ramo y General.</p>
-                <button onclick="runStep4()" class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition flex justify-center items-center gap-2">
-                    <span>Ejecutar</span>
-                </button>
-                <button id="dlStep4" onclick="downloadStep(4)" class="hidden mt-2 w-full border border-purple-600 text-purple-600 py-1 rounded hover:bg-purple-50 text-sm">
-                    <i class="fa-solid fa-download"></i> Descargar
-                </button>
-            </div>
-
-            <!-- Step 5 -->
-            <div id="cardStep5" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-orange-500">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="font-bold text-lg">Paso 5</h3>
-                    <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">Descombinar</span>
-                </div>
-                <p class="text-sm text-gray-600 mb-4">Elimina celdas combinadas en la hoja consolidada.</p>
-                <button onclick="runStep5()" class="hidden w-full bg-orange-600 text-white py-2 rounded hover:bg-orange-700 transition flex justify-center items-center gap-2">
-                    <span>Ejecutar</span>
-                </button>
-                <button id="dlStep5" onclick="downloadStep(5)" class="hidden mt-2 w-full border border-orange-600 text-orange-600 py-1 rounded hover:bg-orange-50 text-sm">
-                    <i class="fa-solid fa-download"></i> Descargar
-                </button>
-            </div>
-
-            <!-- Step 6 -->
-            <div id="cardStep6" class="step-card disabled bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="font-bold text-lg">Paso 6</h3>
-                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Rellenar Vacíos</span>
-                </div>
-                <p class="text-sm text-gray-600 mb-4">Rellena celdas vacías en Columnas A-F con el valor superior.</p>
-                <button onclick="runStep6()" class="hidden w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition flex justify-center items-center gap-2">
-                    <span>Ejecutar</span>
-                </button>
-                <button id="dlStep6" onclick="downloadStep(6)" class="hidden mt-2 w-full border border-green-600 text-green-600 py-1 rounded hover:bg-green-50 text-sm">
-                    <i class="fa-solid fa-download"></i> Descargar Final
-                </button>
             </div>
         </div>
 
@@ -308,6 +322,13 @@
             modal.classList.toggle('hidden');
         }
 
+        function toggleStepsModal() {
+            const modal = document.getElementById('stepsModal');
+            const stepsContainer = document.getElementById('processingSteps');
+            stepsContainer.classList.remove('hidden'); // Asegurarse de que los pasos sean visibles
+            modal.classList.toggle('hidden');
+        }
+
         // === FILE HANDLING ===
         async function handleFileUpload(input) {
             const file = input.files[0];
@@ -328,7 +349,6 @@
 
         async function processZip(blobOrFile) {
             document.getElementById('statusArea').classList.remove('hidden');
-            document.getElementById('processingSteps').classList.add('hidden');
             document.getElementById('previewSection').classList.add('hidden');
             
             log("Abriendo archivo ZIP...");
@@ -380,8 +400,8 @@
                 
                 if (fileCount > 0) {
                     document.getElementById('previewSection').classList.remove('hidden');
-                    document.getElementById('processingSteps').classList.remove('hidden');
                     document.getElementById('allInOneStep').classList.remove('hidden');
+                    document.getElementById('showStepsBtn').classList.remove('hidden');
                     log("ZIP procesado exitosamente. Listo para Paso 1.", 'success');
                 } else {
                     log("No se encontraron archivos .xls o .xlsx válidos en el ZIP.", 'error');
