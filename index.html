@@ -1035,12 +1035,11 @@
                     }
 
                     // --- INICIO: Lógica de limpieza final del Paso 3 ---
-                    // 1. Verificar si la segunda fila es "Primera Cadena de Alineación" y eliminarla.
-                    if (cleanedData.length > 1 && String(cleanedData[1][0] || '').trim() === "Primera Cadena de Alineación") {
-                        cleanedData.splice(1, 1);
-                    }
+                    // 1. MEJORA: Eliminar filas que contengan "Cadena de Alineación" en la columna A.
+                    // Esto cubre "Primera Cadena de Alineación", "Segunda...", etc.
+                    cleanedData = cleanedData.filter(row => !String(row[0] || '').trim().endsWith("Cadena de Alineación"));
 
-                    // 2. Eliminar filas donde las columnas A-G están vacías (excepto la cabecera).
+                    // 2. Eliminar filas donde las columnas A-G están vacías (excepto la cabecera, que se mantiene con la lógica anterior).
                     cleanedData = cleanedData.filter((row, index) => {
                         if (index === 0) return true; // Siempre mantener la fila de encabezado.
                         const firstSevenCols = row.slice(0, 7);
