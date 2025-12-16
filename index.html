@@ -62,6 +62,16 @@
             animation: fadeIn 0.5s;
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Estilos para KPI Cards */
+        .kpi-card-detail {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .kpi-card-detail.open {
+            max-height: 500px; /* Adjust as needed */
+        }
+
 
     </style>
 </head>
@@ -324,10 +334,86 @@
         </div>
 
         <div id="reports" class="tab-content hidden">
-            <div class="bg-white rounded-lg shadow-lg p-12 text-center">
-                <i class="fa-solid fa-chart-line text-6xl text-gray-300 mb-6"></i>
-                <h2 class="text-2xl font-bold text-gray-700 mb-2">Sección de Reportes</h2>
-                <p class="text-gray-500">Este espacio está reservado para la visualización de gráficos y reportes generados a partir de la base consolidada.</p>
+            <!-- Report Input Section -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <!-- Opción 1: Usar resultado del consolidador -->
+                    <div class="border border-gray-200 rounded-lg p-6 bg-gray-50 text-center">
+                        <i class="fa-solid fa-wand-magic-sparkles text-4xl text-gray-400 mb-4"></i>
+                        <h3 class="font-bold mb-2">Opción 1: Usar Resultado del Consolidador</h3>
+                        <p class="text-sm text-gray-600 mb-4">Analiza directamente el archivo final generado en la pestaña anterior.</p>
+                        <button id="useProcessedFileBtn" onclick="generateReportsFromState()" class="bg-[#1E5B4F] text-white px-4 py-2 rounded hover:bg-opacity-90 transition flex items-center gap-2 mx-auto">
+                            <i class="fa-solid fa-play"></i>
+                            <span>Generar Reportes</span>
+                        </button>
+                    </div>
+
+                    <!-- Opción 2: Cargar archivo modificado -->
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#9C2348] transition-colors h-full flex flex-col justify-center">
+                         <i class="fa-solid fa-file-excel text-4xl text-gray-400 mb-4"></i>
+                        <h3 class="font-bold mb-2">Opción 2: Cargar Archivo Modificado</h3>
+                        <p class="text-sm text-gray-600 mb-4">Sube un archivo consolidado (XLSX) si has realizado cambios manuales.</p>
+                        <input type="file" id="reportFileInput" accept=".xlsx" class="hidden" onchange="generateReportsFromFile(this)">
+                        <label for="reportFileInput" class="cursor-pointer bg-[#9C2348] text-white px-4 py-2 rounded hover:bg-opacity-90 transition">
+                            Seleccionar Archivo .xlsx
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Display Area -->
+            <div id="reportDisplayArea" class="hidden">
+                <h2 class="text-2xl font-bold text-gray-700 mb-6">Métricas Principales</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- KPI 1: Programas Presupuestarios -->
+                    <div id="kpiCard1" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer" onclick="toggleKpiDetail('kpiDetail1')">
+                        <div class="p-5">
+                            <p class="text-sm text-gray-500 uppercase">Programas Presupuestarios</p>
+                            <p id="kpiTotalProgramas" class="text-4xl font-bold text-[#9C2348]">0</p>
+                            <p class="text-xs text-gray-400">Total de programas únicos (clic para ver listado)</p>
+                        </div>
+                        <div id="kpiDetail1" class="kpi-card-detail bg-gray-50 border-t border-gray-200 px-5 py-3">
+                            <h4 class="font-bold text-sm mb-2 text-gray-600">Ver Programas</h4>
+                            <ul id="kpiProgramasPorRamo" class="text-sm text-gray-700 space-y-1 max-h-48 overflow-y-auto"></ul>
+                        </div>
+                    </div>
+                    <!-- KPI 3: Indicadores por Programa -->
+                    <div id="kpiCard3" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer" onclick="toggleKpiDetail('kpiDetail3')">
+                        <div class="p-5">
+                            <p class="text-sm text-gray-500 uppercase">Indicadores por Programa Presupuestario</p>
+                            <p id="kpiFrecuenciaProgramas" class="text-4xl font-bold text-[#A6802D]">0</p>
+                            <p class="text-xs text-gray-400">Total de indicadores por progrma (clic para ver desglose)</p>
+                        </div>
+                        <div id="kpiDetail3" class="kpi-card-detail bg-gray-50 border-t border-gray-200 px-5 py-3">
+                            <h4 class="font-bold text-sm mb-2 text-gray-600">Desglose por Programa</h4>
+                            <ul id="kpiDesgloseProgramas" class="text-sm text-gray-700 space-y-1 max-h-48 overflow-y-auto"></ul>
+                        </div>
+                    </div>
+                    <!-- KPI 2: Indicadores por Ramo -->
+                    <div id="kpiCard2" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer" onclick="toggleKpiDetail('kpiDetail2')">
+                        <div class="p-5">
+                            <p class="text-sm text-gray-500 uppercase">Indicadores por Ramo</p>
+                            <p id="kpiFrecuenciaRamos" class="text-4xl font-bold text-[#1E5B4F]">0</p>
+                            <p class="text-xs text-gray-400">Total de indicadores por Ramo (clic para ver desglose)</p>
+                        </div>
+                        <div id="kpiDetail2" class="kpi-card-detail bg-gray-50 border-t border-gray-200 px-5 py-3">
+                            <h4 class="font-bold text-sm mb-2 text-gray-600">Desglose por Ramo</h4>
+                            <ul id="kpiDesgloseRamos" class="text-sm text-gray-700 space-y-1 max-h-48 overflow-y-auto"></ul>
+                        </div>
+                    </div>
+                    <!-- KPI 4: PCUM -->
+                    <div id="kpiCard4" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer" onclick="toggleKpiDetail('kpiDetail4')">
+                        <div class="p-5">
+                            <p class="text-sm text-gray-500 uppercase">Promedio PCUM General</p>
+                            <p id="kpiPromedioPcum" class="text-4xl font-bold text-blue-600">0.00</p>
+                            <p class="text-xs text-gray-400">Promedio del Puntaje de Cumplimiento (clic para ver desglose)</p>
+                        </div>
+                        <div id="kpiDetail4" class="kpi-card-detail bg-gray-50 border-t border-gray-200 px-5 py-3">
+                            <h4 class="font-bold text-sm mb-2 text-gray-600">PCUM por Ramo</h4>
+                            <ul id="kpiPcumPorRamo" class="text-sm text-gray-700 space-y-1 max-h-48 overflow-y-auto"></ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -345,7 +431,8 @@
             wbStep3_1: null, // The workbook object after Step 3.1
             wbStep4: null, // The workbook object after Step 4
             wbStep5: null, // The workbook object after Step 5
-            wbStep6: null  // The workbook object after Step 6
+            wbStep6: null, // The workbook object after Step 6
+            reportData: [] // Array of objects for the report tab
         };
 
         // === LOGGING UTILS ===
@@ -387,6 +474,176 @@
             const stepsContainer = document.getElementById('processingSteps');
             stepsContainer.classList.remove('hidden'); // Asegurarse de que los pasos sean visibles
             modal.classList.toggle('hidden');
+        }
+
+        // === REPORTING LOGIC ===
+        function toggleKpiDetail(detailId) {
+            document.getElementById(detailId).classList.toggle('open');
+        }
+
+        async function generateReportsFromState() {
+            log("Generando reportes desde el estado actual...", "info");
+            const btn = document.getElementById('useProcessedFileBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<span class="loader border-t-white border-white/20 mr-2"></span> Cargando...`;
+
+            // El resultado final está en wbStep4 después de la limpieza.
+            if (!STATE.wbStep4 || !STATE.wbStep4.Sheets["CONSOLIDADO_TOTAL"]) {
+                alert("No se encontró un archivo procesado. Por favor, ejecute el consolidador primero en la pestaña 'Consolidador EMIR'.");
+                log("No se encontró el libro de trabajo final (STATE.wbStep4) para generar reportes.", "error");
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-play"></i><span> Generar Reportes</span>`;
+                return;
+            }
+
+            // Se usa wbStep4 porque contiene el consolidado antes de la limpieza final de columnas.
+            // La limpieza se aplica aquí para asegurar que los datos para el reporte tengan la misma estructura que el archivo final.
+            const wbForReport = applyFinalCleanup(STATE.wbStep4);
+            const ws = wbForReport.Sheets["CONSOLIDADO_TOTAL"];
+            STATE.reportData = XLSX.utils.sheet_to_json(ws, { defval: "" });
+            
+            calculateAndDisplayKPIs();
+            
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-play"></i><span> Generar de Nuevo</span>`;
+        }
+
+        async function generateReportsFromFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            log(`Cargando archivo de reporte: ${file.name}`, "info");
+            const data = await file.arrayBuffer();
+            const wb = XLSX.read(data);
+            
+            // Asumimos que la hoja de interés es la primera
+            const sheetName = wb.SheetNames[0];
+            const ws = wb.Sheets[sheetName];
+            STATE.reportData = XLSX.utils.sheet_to_json(ws);
+
+            calculateAndDisplayKPIs();
+        }
+
+        function calculateAndDisplayKPIs() {
+            if (STATE.reportData.length === 0) {
+                alert("El archivo no contiene datos o no se pudo leer correctamente.");
+                return;
+            }
+
+            document.getElementById('reportDisplayArea').classList.remove('hidden');
+            log("Calculando KPIs...", "info");
+
+            // Column names based on your final output
+            const COL_PROG_PRESUP = "Programa Presupuestario"; // Col F
+            const COL_RAMO = "Ramo"; // Col G
+            const COL_INDICADOR = "DENOMINACIÓN"; // Col A
+            const COL_AVANCE_PCT = "Avance %";
+
+            // --- Añadir columnas calculadas para PCUM al reportData ---
+            const dataWithPcum = addPcumColumnsToData(STATE.reportData);
+
+            // --- KPI 1: Programas Presupuestarios Únicos y desglose por Ramo ---
+            const programasUnicos = new Set();
+            const frecuenciaPorRamo = {}; // { 'Ramo1': 10, 'Ramo2': 5 }
+            const frecuenciaPorPrograma = {}; // { 'ProgA': 20, 'ProgB': 15 }
+            let totalFrecuenciaRamos = 0;
+            let totalFrecuenciaProgramas = 0;
+            let sumaPcumTotal = 0;
+            let countPcumValidos = 0;
+            const pcumPorRamo = {}; // { 'Ramo1': { sum: X, count: Y }, ... }
+
+            dataWithPcum.forEach(row => {
+                const programa = row[COL_PROG_PRESUP];
+                const ramo = row[COL_RAMO];
+                const pcum = row["PCUM"];
+ 
+                // KPI 1: Contar programas únicos
+                if (programa && String(programa).trim() !== '') {
+                    programasUnicos.add(programa);
+                }
+
+                // KPI 2: Contar frecuencia por Ramo
+                if (ramo && String(ramo).trim() !== '') {
+                    frecuenciaPorRamo[ramo] = (frecuenciaPorRamo[ramo] || 0) + 1;
+                    totalFrecuenciaRamos++;
+                }
+
+                // KPI 3: Contar frecuencia por Programa Presupuestario
+                if (programa && String(programa).trim() !== '') {
+                    frecuenciaPorPrograma[programa] = (frecuenciaPorPrograma[programa] || 0) + 1;
+                    totalFrecuenciaProgramas++;
+                }
+
+                // KPI 4: Acumular PCUM
+                if (typeof pcum === 'number' && isFinite(pcum)) {
+                    sumaPcumTotal += pcum;
+                    countPcumValidos++;
+                    if (ramo && String(ramo).trim() !== '') {
+                        if (!pcumPorRamo[ramo]) pcumPorRamo[ramo] = { sum: 0, count: 0 };
+                        pcumPorRamo[ramo].sum += pcum;
+                        pcumPorRamo[ramo].count++;
+                    }
+                }
+            });
+
+            // --- Rellenar KPI 1 (Programas Únicos) ---
+            document.getElementById('kpiTotalProgramas').textContent = programasUnicos.size;
+            
+            const kpiProgramasPorRamoList = document.getElementById('kpiProgramasPorRamo');
+            kpiProgramasPorRamoList.innerHTML = '';
+            // Convertir el Set a un array, ordenarlo y mostrarlo.
+            const programasArray = Array.from(programasUnicos).sort();
+            programasArray.forEach(programa => {
+                const li = document.createElement('li');
+                li.textContent = programa;
+                kpiProgramasPorRamoList.appendChild(li);
+            });
+
+            // --- Rellenar KPI 2 (Frecuencia por Ramo) ---
+            document.getElementById('kpiFrecuenciaRamos').textContent = totalFrecuenciaRamos;
+            const kpiDesgloseRamosList = document.getElementById('kpiDesgloseRamos');
+            kpiDesgloseRamosList.innerHTML = '';
+            // Ordenar ramos por cantidad de indicadores (mayor a menor)
+            Object.entries(frecuenciaPorRamo)
+                .sort(([, a], [, b]) => b - a) // Ordena por valor (conteo) descendente
+                .forEach(([ramo, count]) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span class="font-semibold">${ramo}:</span> ${count} indicadores`;
+                    kpiDesgloseRamosList.appendChild(li);
+                });
+
+            // --- Rellenar KPI 3 (Frecuencia por Programa) ---
+            document.getElementById('kpiFrecuenciaProgramas').textContent = totalFrecuenciaProgramas;
+            const kpiDesgloseProgramasList = document.getElementById('kpiDesgloseProgramas');
+            kpiDesgloseProgramasList.innerHTML = '';
+            // Ordenar programas por cantidad de indicadores (mayor a menor)
+            Object.entries(frecuenciaPorPrograma)
+                .sort(([, a], [, b]) => b - a) // Ordena por valor (conteo) descendente
+                .forEach(([programa, count]) => {
+                    const li = document.createElement('li');
+                    const displayName = programa.length > 40 ? programa.substring(0, 37) + '...' : programa;
+                    li.innerHTML = `<span class="font-semibold" title="${programa}">${displayName}:</span> ${count} indicadores`;
+                    kpiDesgloseProgramasList.appendChild(li);
+                });
+
+            // --- Rellenar KPI 4 (PCUM) ---
+            const promedioPcum = countPcumValidos > 0 ? (sumaPcumTotal / countPcumValidos) : 0;
+            document.getElementById('kpiPromedioPcum').textContent = promedioPcum.toFixed(2);
+
+            const kpiPcumPorRamoList = document.getElementById('kpiPcumPorRamo');
+            kpiPcumPorRamoList.innerHTML = '';
+            Object.entries(pcumPorRamo)
+                .map(([ramo, data]) => ({ ramo, avg: data.sum / data.count }))
+                .sort((a, b) => b.avg - a.avg) // Ordenar por promedio PCUM descendente
+                .forEach(({ ramo, avg }) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span class="font-semibold">${ramo}:</span> ${avg.toFixed(2)}`;
+                    kpiPcumPorRamoList.appendChild(li);
+                });
+
+
+
+            log("KPIs mostrados.", "success");
         }
 
         // === FILE HANDLING ===
@@ -502,10 +759,14 @@
 
                 // Aplicar limpieza final antes de descargar
                 log("Aplicando limpieza final (unificar columnas, eliminar vacías)...");
-                const finalWb = applyFinalCleanup(STATE.wbStep4);
+                const cleanedWb = applyFinalCleanup(STATE.wbStep4);
 
-                const styledWb = applyStylesToWorkbook(finalWb);
-                XLSX.writeFile(styledWb, "EMIR_CONSOLIDADO_FINAL.xlsx");
+                log("Añadiendo columnas PCUM...");
+                const pcumWb = addPcumColumnsToWorkbook(cleanedWb);
+
+                log("Aplicando estilos finales...");
+                const styledWb = applyStylesToWorkbook(pcumWb);
+                XLSX.writeFile(styledWb, "EMIR_CONSOLIDADO_FINAL_PCUM.xlsx");
 
             } catch (error) {
                 log(`Error en el proceso completo: ${error.message}`, 'error');
@@ -571,6 +832,101 @@
             wb.Sheets[sheetName] = newWs;
             return wb;
         }
+
+        // === PCUM CALCULATION UTILITY ===
+        function addPcumColumnsToData(data) {
+            const COL_AVANCE_PCT = "Avance %";
+            const COL_META_APROBADA = "Meta Anual Aprobada";
+            const COL_META_AJUSTADA = "Meta Anual Ajustada";
+
+            return data.map(row => {
+                const newRow = { ...row };
+                const avance = parseFloat(newRow[COL_AVANCE_PCT]);
+                const metaAprobada = newRow[COL_META_APROBADA];
+                const metaAjustada = newRow[COL_META_AJUSTADA];
+
+                let avanceAcotado;
+
+                // --- Lógica de Avance Acotado, Penalización y PCUM ---
+                const isMetaAjustadaCero = metaAjustada === 0 || metaAjustada === "0";
+                const isMetaAjustadaInvalid = metaAjustada === "" || metaAjustada === null;
+                const isMetaAprobadaInvalid = metaAprobada === "" || metaAprobada === null || metaAprobada === 0 || metaAprobada === "0";
+                const isAvanceNotANumber = isNaN(avance) || newRow[COL_AVANCE_PCT] === "N/A" || newRow[COL_AVANCE_PCT] === "" || newRow[COL_AVANCE_PCT] === null;
+
+                // CASO ESPECIAL: Si la meta ajustada es 0, todo es N/A.
+                if (isMetaAjustadaCero) {
+                    avanceAcotado = "N/A";
+                    newRow["AVANCE ACOTADO"] = "N/A";
+                    newRow["PENALIZACIÓN"] = "N/A";
+                    newRow["PCUM"] = "N/A";
+                    return newRow; // Salir temprano
+                }
+
+                if (isMetaAjustadaInvalid && isMetaAprobadaInvalid) { // Si ambas metas son inválidas
+                    avanceAcotado = "N/A";
+                } else if (isAvanceNotANumber) { // Si hay meta pero el avance es inválido (vacío, N/A, etc.)
+                    avanceAcotado = 0; // Se considera como 0% de avance.
+                } else if (avance > 100) {
+                    avanceAcotado = 100;
+                } else if (avance < 0) {
+                    avanceAcotado = 0;
+                } else {
+                    avanceAcotado = avance;
+                }
+                newRow["AVANCE ACOTADO"] = avanceAcotado;
+
+                // Lógica de Penalización
+                let penalizacion;
+                if (avanceAcotado === "N/A") { // La penalización depende del avance acotado
+                    penalizacion = "N/A";
+                } else if (isAvanceNotANumber || avance <= 0) { // Si es NaN, vacío, nulo, 0 o negativo
+                    penalizacion = 0;
+                } else {
+                    if (avance > 300) penalizacion = -30;
+                    else if (avance > 280) penalizacion = -27;
+                    else if (avance > 260) penalizacion = -24;
+                    else if (avance > 240) penalizacion = -21;
+                    else if (avance > 220) penalizacion = -18;
+                    else if (avance > 200) penalizacion = -15;
+                    else if (avance > 180) penalizacion = -12;
+                    else if (avance > 160) penalizacion = -9;
+                    else if (avance > 140) penalizacion = -6;
+                    else if (avance > 120) penalizacion = -3;
+                    else if (avance >= 80) penalizacion = 0;
+                    else penalizacion = -3;
+                }
+                newRow["PENALIZACIÓN"] = penalizacion;
+
+                // Lógica de PCUM
+                let pcum;
+                if (avanceAcotado === "N/A" || penalizacion === "N/A") {
+                    pcum = "N/A";
+                } else {
+                    pcum = avanceAcotado + penalizacion;
+                }
+                newRow["PCUM"] = pcum;
+
+                return newRow;
+            });
+        }
+
+        function addPcumColumnsToWorkbook(wb) {
+            const sheetName = "CONSOLIDADO_TOTAL";
+            const ws = wb.Sheets[sheetName];
+            if (!ws) {
+                log("Advertencia: No se encontró la hoja 'CONSOLIDADO_TOTAL' para añadir columnas PCUM.", "error");
+                return wb;
+            }
+
+            let data = XLSX.utils.sheet_to_json(ws, { defval: "" });
+            const dataWithPcum = addPcumColumnsToData(data);
+
+            const newWs = XLSX.utils.json_to_sheet(dataWithPcum);
+            wb.Sheets[sheetName] = newWs;
+
+            return wb;
+        }
+
 
         // === STEP 1: CONSOLIDATE WORKBOOKS ===
         async function runStep1() {
@@ -1621,7 +1977,8 @@
 
             if (wb) {
                 const styledWb = applyStylesToWorkbook(wb);
-                XLSX.writeFile(styledWb, filename);
+                // Antes de descargar, aseguramos la limpieza final si es el último paso
+                XLSX.writeFile(wb, filename);
             }
         }
     </script>
