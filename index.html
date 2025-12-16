@@ -52,6 +52,17 @@
         .modal-content {
             transition: transform 0.3s ease, opacity 0.3s ease;
         }
+        /* Estilos para Pestañas */
+        .tab-btn.active {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .tab-content {
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
@@ -204,6 +215,26 @@
             <p class="text-gray-600 max-w-3xl">Herramienta elaborada en el marco del contrato de prestación de servicios DC-620-2025 con el objetivo de consolidar las Matrices de Indicadores para Resultados de la Cuenta Pública 2024.</p>
         </header>
 
+        <!-- Tab Navigation -->
+        <div class="mb-8">
+            <div class="border-b border-gray-300">
+                <nav class="flex -mb-px space-x-4" aria-label="Tabs">
+                    <button onclick="switchTab(event, 'emir')" class="tab-btn active whitespace-nowrap py-3 px-5 border-b-4 font-medium text-lg transition-colors duration-300">
+                        <i class="fa-solid fa-gears mr-2"></i>Consolidador EMIR
+                    </button>
+                    <button onclick="switchTab(event, 'reports')" class="tab-btn whitespace-nowrap py-3 px-5 border-b-4 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-400 font-medium text-lg transition-colors duration-300">
+                        <i class="fa-solid fa-chart-pie mr-2"></i>Reportes
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="emir" class="tab-content">
+
+
+
+
         <!-- Info Button -->
         <div class="relative mb-8">
             <button onclick="toggleInstructions()" class="absolute -top-20 right-0 bg-blue-100 text-blue-800 p-3 rounded-full shadow-md hover:bg-blue-200 transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500" title="Mostrar Instrucciones">
@@ -290,6 +321,16 @@
             </div>
         </div>
 
+        </div>
+
+        <div id="reports" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-lg p-12 text-center">
+                <i class="fa-solid fa-chart-line text-6xl text-gray-300 mb-6"></i>
+                <h2 class="text-2xl font-bold text-gray-700 mb-2">Sección de Reportes</h2>
+                <p class="text-gray-500">Este espacio está reservado para la visualización de gráficos y reportes generados a partir de la base consolidada.</p>
+            </div>
+        </div>
+
     </div>
 
     <!-- MAIN LOGIC SCRIPT -->
@@ -320,6 +361,25 @@
         function toggleInstructions() {
             const modal = document.getElementById('instructionsModal');
             modal.classList.toggle('hidden');
+        }
+
+        // === TAB SWITCHING LOGIC ===
+        function switchTab(event, tabName) {
+            // Ocultar todos los contenidos de las pestañas
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Quitar la clase 'active' de todos los botones de pestaña
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Mostrar el contenido de la pestaña seleccionada y marcar el botón como activo
+            document.getElementById(tabName).classList.remove('hidden');
+            event.currentTarget.classList.add('active');
         }
 
         function toggleStepsModal() {
