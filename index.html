@@ -46,9 +46,32 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .modal-backdrop {
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
+
+    <!-- Instructions Modal -->
+    <div id="instructionsModal" class="hidden fixed inset-0 z-50">
+        <!-- Backdrop -->
+        <div onclick="toggleInstructions()" class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
+        <!-- Modal Content -->
+        <div class="modal-content relative bg-white rounded-lg shadow-xl p-8 m-4 max-w-lg mx-auto mt-20 border-t-4 border-[#A6802D]">
+            <h2 class="font-bold text-2xl mb-4 text-[#A6802D]"><i class="fa-solid fa-circle-info mr-2"></i>Instrucciones de Uso</h2>
+            <ol class="list-decimal list-inside text-gray-700 space-y-2">
+                <li>Si no tiene el archivo, seleccione el año y presione <strong>"Descargar ZIP de Hacienda"</strong>. El archivo se descargará en su equipo.</li>
+                <li>Una vez descargado, presione <strong>"Seleccionar Archivo .zip"</strong> y cargue el archivo que acaba de bajar.</li>
+                <li>Con el archivo cargado, presione el botón <strong>"Ejecutar Todo y Descargar"</strong> para iniciar el proceso automático.</li>
+                <li>Opcionalmente, puede ejecutar cada paso de forma individual y descargar los resultados intermedios.</li>
+            </ol>
+            <button onclick="toggleInstructions()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+        </div>
+    </div>
 
     <div class="container mx-auto px-4 py-8 max-w-6xl">
         
@@ -61,43 +84,44 @@
             <p class="text-gray-600 max-w-3xl">Herramienta elaborada en el marco del contrato de prestación de servicios DC-620-2025 con el objetivo de consolidar las Matrices de Indicadores para Resultados de la Cuenta Pública 2024.</p>
         </header>
 
-        <!-- Instructions -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8 border-l-4 border-[#A6802D]">
-            <h2 class="font-bold text-lg mb-2 text-[#A6802D]"><i class="fa-solid fa-circle-info mr-2"></i>Instrucciones de Uso</h2>
-            <ol class="list-decimal list-inside text-gray-700 space-y-1">
-                <li>Cargue el archivo <strong>.zip</strong> que contiene los archivos Excel de la Cuenta Pública usando la <strong>Opción A</strong>.</li>
-                <li>Opcionalmente, use la <strong>Opción B</strong> para intentar descargar el archivo directamente desde la URL de Hacienda (puede fallar por seguridad).</li>
-                <li>Una vez cargado el archivo, presione el botón <strong>"Ejecutar Todo y Descargar"</strong> para realizar el proceso completo de forma automática.</li>
-                <li>Si lo prefiere, puede ejecutar cada paso del proceso de forma individual y descargar los resultados intermedios.</li>
-            </ol>
+        <!-- Info Button -->
+        <div class="relative mb-8">
+            <button onclick="toggleInstructions()" class="absolute -top-20 right-0 bg-blue-100 text-blue-800 p-3 rounded-full shadow-md hover:bg-blue-200 transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500" title="Mostrar Instrucciones">
+                <i class="fa-solid fa-circle-info text-2xl"></i>
+            </button>
         </div>
-
+        
         <!-- Input Section -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Opción 1: Subir Local -->
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#9C2348] transition-colors">
-                    <i class="fa-solid fa-upload text-4xl text-gray-400 mb-4"></i>
-                    <h3 class="font-bold mb-2">Opción A: Subir ZIP Local</h3>
-                    <input type="file" id="fileInput" accept=".zip" class="hidden" onchange="handleFileUpload(this)">
-                    <label for="fileInput" class="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-                        Seleccionar Archivo .zip
-                    </label>
-                </div>
-
-                <!-- Opción 2: URL -->
-                <div class="border border-gray-200 rounded-lg p-6 bg-gray-50">
-                    <i class="fa-solid fa-globe text-4xl text-gray-400 mb-4 block text-center"></i>
-                    <h3 class="font-bold mb-2 text-center">Opción B: URL (Hacienda)</h3>
-                    <div class="flex gap-2">
-                        <input type="text" id="urlInput" 
-                            value="https://www.cuentapublica.hacienda.gob.mx/work/models/CP/2024/tomo/III/E_MIR.zip"
-                            class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-[#1E5B4F] focus:border-[#1E5B4F]" placeholder="https://...">
-                        <button onclick="handleUrlDownload()" class="bg-[#1E5B4F] text-white px-4 py-2 rounded hover:bg-opacity-90 transition">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <!-- Parte 1: Descargar de Hacienda -->
+                <div class="border border-gray-200 rounded-lg p-6 bg-gray-50 text-center">
+                    <i class="fa-solid fa-cloud-arrow-down text-4xl text-gray-400 mb-4"></i>
+                    <h3 class="font-bold mb-2">Paso 1: Obtener el archivo</h3>
+                    <p class="text-sm text-gray-600 mb-4">Seleccione el año y descargue el archivo ZIP oficial de la Cuenta Pública.</p>
+                    <div class="flex gap-2 justify-center">
+                        <select id="yearSelector" class="border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-[#1E5B4F]">
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                            <option value="2021">2021</option>
+                        </select>
+                        <button onclick="openDownloadLink()" class="bg-[#1E5B4F] text-white px-4 py-2 rounded hover:bg-opacity-90 transition flex items-center gap-2">
                             <i class="fa-solid fa-download"></i>
+                            <span>Descargar ZIP de Hacienda</span>
                         </button>
                     </div>
-                    <p class="text-xs text-red-500 mt-2">Nota: Si la descarga falla por seguridad (CORS), descarga el ZIP manualmente y usa la Opción A.</p>
+                </div>
+
+                <!-- Parte 2: Subir ZIP Local -->
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#9C2348] transition-colors h-full flex flex-col justify-center">
+                     <i class="fa-solid fa-upload text-4xl text-gray-400 mb-4"></i>
+                    <h3 class="font-bold mb-2">Paso 2: Cargar el archivo</h3>
+                    <p class="text-sm text-gray-600 mb-4">Una vez descargado, súbalo aquí para comenzar el procesamiento.</p>
+                    <input type="file" id="fileInput" accept=".zip" class="hidden" onchange="handleFileUpload(this)">
+                    <label for="fileInput" class="cursor-pointer bg-[#9C2348] text-white px-4 py-2 rounded hover:bg-opacity-90 transition">
+                        Seleccionar Archivo .zip
+                    </label>
                 </div>
             </div>
         </div>
@@ -278,6 +302,12 @@
             document.getElementById('statusArea').scrollTop = document.getElementById('statusArea').scrollHeight;
         }
 
+        // === UI UTILS ===
+        function toggleInstructions() {
+            const modal = document.getElementById('instructionsModal');
+            modal.classList.toggle('hidden');
+        }
+
         // === FILE HANDLING ===
         async function handleFileUpload(input) {
             const file = input.files[0];
@@ -285,24 +315,15 @@
             processZip(file);
         }
 
-        async function handleUrlDownload() {
-            const url = document.getElementById('urlInput').value;
-            // Usamos un proxy CORS gratuito para demos. En producción real, necesitarías tu propio backend.
-            // allorigins.win o corsproxy.io son comunes.
-            const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-            
-            document.getElementById('statusArea').classList.remove('hidden');
-            log(`Intentando descargar desde: ${url} ...`);
-            log(`Usando proxy CORS para evadir restricciones de navegador...`);
-
-            try {
-                const response = await fetch(proxyUrl);
-                if (!response.ok) throw new Error('Error en descarga: ' + response.statusText);
-                const blob = await response.blob();
-                processZip(blob);
-            } catch (error) {
-                log(`Error: ${error.message}. Intenta descargar el archivo manualmente y usar la Opción A.`, 'error');
+        function openDownloadLink() {
+            const year = document.getElementById('yearSelector').value;
+            if (!year) {
+                log("Por favor, seleccione un año.", "error");
+                return;
             }
+            const url = `https://www.cuentapublica.hacienda.gob.mx/work/models/CP/${year}/tomo/III/E_MIR.zip`;
+            log(`Abriendo enlace de descarga para el año ${year} en una nueva pestaña...`);
+            window.open(url, '_blank');
         }
 
         async function processZip(blobOrFile) {
