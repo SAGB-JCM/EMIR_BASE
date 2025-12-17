@@ -624,12 +624,14 @@
 
             // --- KPI 1: Programas Presupuestarios Únicos y desglose por Ramo ---
             const programasUnicos = new Set();
-            const frecuenciaPorRamo = {}; // { 'Ramo1': 10, 'Ramo2': 5 }
+            // CORRECCIÓN: Ahora se cuenta por separado los válidos y los N/A por ramo.
+            const frecuenciaPorRamo = {}; // { 'Ramo1': { validos: 10, na: 2 }, ... }
             const frecuenciaPorPrograma = {}; // { 'ProgA': 20, 'ProgB': 15 }
             let totalFrecuenciaRamos = 0;
             let totalFrecuenciaProgramas = 0;
             let sumaPcumTotal = 0;
             let countPcumValidos = 0;
+            let countPcumNA = 0; // NUEVO: Contador para los N/A excluidos.
             const pcumPorRamo = {}; // { 'Ramo1': { sum: X, count: Y }, ... }
 
             dataWithPcum.forEach(row => {
@@ -638,41 +640,51 @@
                 const pcum = row["PCUM"];
  
                 // KPI 1: Contar programas únicos
-                if (programa && String(programa).trim() !== '') {
-                    programasUnicos.add(programa);
-                }
+                if (programa && String(programa).trim() !== '') programasUnicos.add(programa);
 
                 // KPI 2: Contar frecuencia por Ramo
                 if (ramo && String(ramo).trim() !== '') {
-                    frecuenciaPorRamo[ramo] = (frecuenciaPorRamo[ramo] || 0) + 1;
+                    if (!frecuenciaPorRamo[ramo]) frecuenciaPorRamo[ramo] = { validos: 0, na: 0 };
+                    // Se incrementa el contador total de indicadores para el ramo.
+                    frecuenciaPorRamo[ramo].validos++; 
                     totalFrecuenciaRamos++;
                 }
-
+                
                 // KPI 3: Contar frecuencia por Programa Presupuestario
                 if (programa && String(programa).trim() !== '') {
                     frecuenciaPorPrograma[programa] = (frecuenciaPorPrograma[programa] || 0) + 1;
                     totalFrecuenciaProgramas++;
                 }
 
-                // KPI 4: Acumular PCUM
-                const pcumValue = parseFloat(pcum);
-
-                console.log(pcum, parseFloat(pcum));
-
-                if (pcum !== "N/A" && !isNaN(pcumValue)) {
-                    sumaPcumTotal += pcumValue;
-                    countPcumValidos++;
+                // KPI 4: Acumular PCUM (Lógica simplificada y corregida)
+                // Si el PCUM es explícitamente "N/A", se cuenta como excluido y se ignora para el cálculo.
+                if (pcum === "N/A") {
+                    countPcumNA++;
+                    // También se registra como N/A para el desglose por ramo.
                     if (ramo && String(ramo).trim() !== '') {
-                        if (!pcumPorRamo[ramo]) pcumPorRamo[ramo] = { sum: 0, count: 0 };
-                        pcumPorRamo[ramo].sum += pcumValue;
-                        pcumPorRamo[ramo].count++;
+                        if (!frecuenciaPorRamo[ramo]) frecuenciaPorRamo[ramo] = { validos: 0, na: 0 };
+                        frecuenciaPorRamo[ramo].na++;
+                        frecuenciaPorRamo[ramo].validos--; // Se resta del conteo de válidos para no duplicar.
+                    }
+                } else {
+                    const pcumValue = parseFloat(pcum);
+                    // Solo si la conversión a número es exitosa, se procesa.
+                    if (!isNaN(pcumValue)) {
+                        sumaPcumTotal += pcumValue;
+                        countPcumValidos++;
+ 
+                        // Acumular para el desglose por Ramo
+                        if (ramo && String(ramo).trim() !== '') {
+                            if (!pcumPorRamo[ramo]) pcumPorRamo[ramo] = { sum: 0, count: 0 };
+                            pcumPorRamo[ramo].sum += pcumValue;
+                            pcumPorRamo[ramo].count++;
+                        }
                     }
                 }
             });
 
             // --- Rellenar KPI 1 (Programas Únicos) ---
             document.getElementById('kpiTotalProgramas').textContent = programasUnicos.size;
-            
             const kpiProgramasPorRamoList = document.getElementById('kpiProgramasPorRamo');
             kpiProgramasPorRamoList.innerHTML = '';
             // Convertir el Set a un array, ordenarlo y mostrarlo.
@@ -686,13 +698,17 @@
             // --- Rellenar KPI 2 (Frecuencia por Ramo) ---
             document.getElementById('kpiFrecuenciaRamos').textContent = totalFrecuenciaRamos;
             const kpiDesgloseRamosList = document.getElementById('kpiDesgloseRamos');
+            const totalNA = Object.values(frecuenciaPorRamo).reduce((acc, curr) => acc + curr.na, 0);
+
             kpiDesgloseRamosList.innerHTML = '';
+            // NUEVO: Añadir línea con el total de indicadores sin meta.
+            kpiDesgloseRamosList.innerHTML += `<li class="font-bold text-red-600 mb-2">Total de Indicadores sin Meta reportada (N/A): ${totalNA}</li>`;
             // Ordenar ramos por cantidad de indicadores (mayor a menor)
             Object.entries(frecuenciaPorRamo)
-                .sort(([, a], [, b]) => b - a) // Ordena por valor (conteo) descendente
-                .forEach(([ramo, count]) => {
+                .sort(([, a], [, b]) => (b.validos + b.na) - (a.validos + a.na)) // Ordena por conteo total
+                .forEach(([ramo, data]) => {
                     const li = document.createElement('li');
-                    li.innerHTML = `<span class="font-semibold">${ramo}:</span> ${count} indicadores`;
+                    li.innerHTML = `<span class="font-semibold">${ramo}:</span> ${data.validos + data.na} indicadores (${data.na} N/A)`;
                     kpiDesgloseRamosList.appendChild(li);
                 });
 
@@ -711,7 +727,7 @@
                 });
 
             // --- Rellenar KPI 4 (PCUM) ---
-            log(`Cálculo de PCUM: Se utilizaron ${countPcumValidos} registros válidos (excluyendo "N/A").`, 'info');
+            log(`Cálculo de PCUM: Se utilizaron ${countPcumValidos} registros válidos (excluyendo ${countPcumNA} registros "N/A").`, 'info');
             const promedioPcum = countPcumValidos > 0 ? (sumaPcumTotal / countPcumValidos) : 0;
             const kpiPcumElement = document.getElementById('kpiPromedioPcum');
             const kpiCard4 = document.getElementById('kpiCard4');
@@ -1015,7 +1031,8 @@
                 if (isMetaAjustadaCero) {
                     avanceAcotado = "N/A";
                     newRow["AVANCE ACOTADO"] = "N/A";
-                    newRow["PENALIZACIÓN"] = "N/A";
+                    // La penalización también es N/A si no hay meta.
+                    newRow["PENALIZACIÓN"] = "N/A"; 
                     newRow["PCUM"] = "N/A";
                     return newRow; // Salir temprano
                 }
@@ -1023,7 +1040,8 @@
                 if (isMetaAjustadaInvalid && isMetaAprobadaInvalid) { // Si ambas metas son inválidas
                     avanceAcotado = "N/A";
                 } else if (isAvanceNotANumber) { // Si hay meta pero el avance es inválido (vacío, N/A, etc.)
-                    avanceAcotado = 0; // Se considera como 0% de avance.
+                    // CORRECCIÓN: Si el avance no es un número, el acotado debe ser N/A para que el PCUM también lo sea.
+                    avanceAcotado = "N/A";
                 } else if (avance > 100) {
                     avanceAcotado = 100;
                 } else if (avance < 0) {
@@ -1037,8 +1055,9 @@
                 let penalizacion;
                 if (avanceAcotado === "N/A") { // La penalización depende del avance acotado
                     penalizacion = "N/A";
-                } else if (isAvanceNotANumber || avance <= 0) { // Si es NaN, vacío, nulo, 0 o negativo
-                    penalizacion = 0;
+                } else if (avanceAcotado === 0) { // Si el avance acotado es 0 (incluye negativos y NaN originales)
+                    // CORRECCIÓN: La penalización es 0 si el avance es 0, pero -3 si está entre 0 y 80.
+                    penalizacion = (avance >= 80) ? 0 : -3;
                 } else {
                     if (avance > 300) penalizacion = -30;
                     else if (avance > 280) penalizacion = -27;
