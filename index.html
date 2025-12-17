@@ -655,12 +655,16 @@
                 }
 
                 // KPI 4: Acumular PCUM
-                if (typeof pcum === 'number') {
-                    sumaPcumTotal += pcum;
+                const pcumValue = parseFloat(pcum);
+
+                console.log(pcum, parseFloat(pcum));
+
+                if (pcum !== "N/A" && !isNaN(pcumValue)) {
+                    sumaPcumTotal += pcumValue;
                     countPcumValidos++;
                     if (ramo && String(ramo).trim() !== '') {
                         if (!pcumPorRamo[ramo]) pcumPorRamo[ramo] = { sum: 0, count: 0 };
-                        pcumPorRamo[ramo].sum += pcum;
+                        pcumPorRamo[ramo].sum += pcumValue;
                         pcumPorRamo[ramo].count++;
                     }
                 }
@@ -707,6 +711,7 @@
                 });
 
             // --- Rellenar KPI 4 (PCUM) ---
+            log(`Cálculo de PCUM: Se utilizaron ${countPcumValidos} registros válidos (excluyendo "N/A").`, 'info');
             const promedioPcum = countPcumValidos > 0 ? (sumaPcumTotal / countPcumValidos) : 0;
             const kpiPcumElement = document.getElementById('kpiPromedioPcum');
             const kpiCard4 = document.getElementById('kpiCard4');
