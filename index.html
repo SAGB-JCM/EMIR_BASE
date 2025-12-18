@@ -483,6 +483,27 @@
                         <ul id="kpiPcumPorRamo" class="text-sm text-gray-700 space-y-1 max-h-48 overflow-y-auto"></ul>
                     </div>
                 </div>
+                <!-- KPI 5: PCUM por Tipo de UR -->
+                <div id="kpiCard5" class="lg:col-span-3 bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transition-all duration-300" onclick="toggleKpiDetail('kpiDetail5')">
+                    <div class="p-5">
+                        <p class="text-sm text-gray-500 uppercase">Promedio PCUM por Tipo de UR</p>
+                        <div class="grid grid-cols-2 gap-4 mt-2">
+                            <div>
+                                <p class="text-xs text-gray-400">Dependencia</p>
+                                <p id="kpiPcumDependencia" class="text-3xl font-bold text-blue-600">0.00</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400">Entidad</p>
+                                <p id="kpiPcumEntidad" class="text-3xl font-bold text-purple-600">0.00</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2">Promedio del Puntaje de Cumplimiento (clic para ver totales)</p>
+                    </div>
+                    <div id="kpiDetail5" class="kpi-card-detail bg-gray-50 border-t border-gray-200 px-5 py-3">
+                        <h4 class="font-bold text-sm mb-2 text-gray-600">Totales por Tipo de UR</h4>
+                        <ul id="kpiPcumTotalesPorTipo" class="text-sm text-gray-700 space-y-2"></ul>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -686,6 +707,10 @@
             let totalFrecuenciaProgramas = 0;
             let sumaPcumTotal = 0;
             let countPcumValidos = 0;
+            let sumaPcumDependencia = 0;
+            let countPcumDependencia = 0;
+            let sumaPcumEntidad = 0;
+            let countPcumEntidad = 0;
 
             dataWithPcum.forEach(row => {
                 const programa = row[COL_PROG_PRESUP];
@@ -717,6 +742,16 @@
                 if (pcum !== "N/A" && !isNaN(pcumValue)) { // Lógica para el promedio general
                     sumaPcumTotal += pcumValue;
                     countPcumValidos++;
+
+                    // Acumular para KPI 5
+                    const tipoUR = row["Tipo UR"];
+                    if (tipoUR === 'Dependencia') {
+                        sumaPcumDependencia += pcumValue;
+                        countPcumDependencia++;
+                    } else if (tipoUR === 'Entidad') {
+                        sumaPcumEntidad += pcumValue;
+                        countPcumEntidad++;
+                    }
                 }
             });
 
@@ -797,6 +832,27 @@
                     li.innerHTML = `<span class="font-semibold">${ramo}:</span> ${avg.toFixed(2)}`;
                     kpiPcumPorRamoList.appendChild(li);
                 });
+
+            // --- Rellenar KPI 5 (PCUM por Tipo de UR) ---
+            const promedioPcumDependencia = countPcumDependencia > 0 ? (sumaPcumDependencia / countPcumDependencia) : 0;
+            const promedioPcumEntidad = countPcumEntidad > 0 ? (sumaPcumEntidad / countPcumEntidad) : 0;
+
+            document.getElementById('kpiPcumDependencia').textContent = promedioPcumDependencia.toFixed(2);
+            document.getElementById('kpiPcumEntidad').textContent = promedioPcumEntidad.toFixed(2);
+
+            const kpiPcumTotalesList = document.getElementById('kpiPcumTotalesPorTipo');
+            kpiPcumTotalesList.innerHTML = `
+                <li>
+                    <span class="font-semibold text-blue-600">Dependencia:</span> ${promedioPcumDependencia.toFixed(2)} promedio de <span class="font-bold">${countPcumDependencia}</span> indicadores.
+                </li>
+                <li>
+                    <span class="font-semibold text-purple-600">Entidad:</span> ${promedioPcumEntidad.toFixed(2)} promedio de <span class="font-bold">${countPcumEntidad}</span> indicadores.
+                </li>
+                <li class="border-t pt-2 mt-2">
+                    <span class="font-semibold text-gray-700">Total General:</span> ${promedioPcum.toFixed(2)} promedio de <span class="font-bold">${countPcumValidos}</span> indicadores totales.
+                </li>
+            `;
+
 
 
 
