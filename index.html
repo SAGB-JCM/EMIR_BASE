@@ -502,7 +502,8 @@
             wbStep5: null, // The workbook object after Step 5
             wbStep6: null, // The workbook object after Step 6
             reportData: [], // Array of objects for the report tab
-            indicadoresData: null // Data from the uploaded indicadores CSV
+            indicadoresData: null, // Data from the uploaded indicadores CSV
+            finalReportData: null // The final, definitive data used for the download, to be used by the report tab
         };
 
         // === LOGGING UTILS ===
@@ -567,23 +568,19 @@
             btn.disabled = true;
             btn.innerHTML = `<span class="loader border-t-white border-white/20 mr-2"></span> Cargando...`;
 
-            // El resultado final está en wbStep4 después de la limpieza.
-            if (!STATE.wbStep4 || !STATE.wbStep4.Sheets["CONSOLIDADO_TOTAL"]) {
-                alert("No se encontró un archivo procesado. Por favor, ejecute el consolidador primero en la pestaña 'Consolidador EMIR'.");
-                log("No se encontró el libro de trabajo final (STATE.wbStep4) para generar reportes.", "error");
+            // AHORA USAMOS EL RESULTADO FINAL Y DEFINITIVO GUARDADO TRAS LA EJECUCIÓN COMPLETA
+            if (!STATE.finalReportData || STATE.finalReportData.length === 0) {
+                alert("No se encontraron datos procesados. Por favor, ejecute el proceso 'Ejecutar Todo y Descargar' en la pestaña anterior primero.");
+                log("No se encontraron datos finales (STATE.finalReportData) para generar reportes.", "error");
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-play"></i><span> Generar Reportes</span>`;
                 return;
             }
-
-            // Se usa wbStep4 porque contiene el consolidado antes de la limpieza final de columnas.
-            // La limpieza se aplica aquí para asegurar que los datos para el reporte tengan la misma estructura que el archivo final.
-            const wbForReport = applyFinalCleanup(STATE.wbStep4);
-            const ws = wbForReport.Sheets["CONSOLIDADO_TOTAL"];
-            STATE.reportData = XLSX.utils.sheet_to_json(ws, { defval: "" });
             
+            // Asignamos los datos finales y definitivos para que sean procesados por los KPIs.
+            // No se recalcula nada, se usa la data tal cual se generó para el archivo de descarga.
+            STATE.reportData = STATE.finalReportData;
             calculateAndDisplayKPIs();
-            
             btn.disabled = false;
             btn.innerHTML = `<i class="fa-solid fa-play"></i><span> Generar de Nuevo</span>`;
         }
@@ -604,6 +601,37 @@
             calculateAndDisplayKPIs();
         }
 
+        /**
+         * Calcula el promedio de PCUM para cada Ramo a partir de los datos procesados.
+         * Esta función se aísla para asegurar un cálculo limpio y específico.
+         * @param {Array<Object>} data - El conjunto de datos, donde cada objeto es una fila.
+         * @returns {Object} Un objeto que mapea cada Ramo a su promedio de PCUM.
+         */
+        function calculatePcumByRamo(data) {
+            const COL_RAMO = "Ramo";
+            const COL_PCUM = "PCUM";
+            const pcumDataByRamo = {}; // { "Ramo1": [100, 90, 85], "Ramo2": [70, "N/A"] }
+
+            // 1. Agrupar todos los valores de PCUM por Ramo
+            data.forEach(row => {
+                const ramo = row[COL_RAMO];
+                const pcum = row[COL_PCUM];
+                if (ramo && String(ramo).trim() !== '') {
+                    if (!pcumDataByRamo[ramo]) {
+                        pcumDataByRamo[ramo] = [];
+                    }
+                    pcumDataByRamo[ramo].push(pcum);
+                }
+            });
+
+            // 2. Calcular el promedio para cada Ramo, filtrando "N/A"
+            return Object.fromEntries(Object.entries(pcumDataByRamo).map(([ramo, pcumValues]) => {
+                const validValues = pcumValues.filter(v => v !== "N/A" && !isNaN(parseFloat(v))).map(parseFloat);
+                const average = validValues.length > 0 ? validValues.reduce((sum, val) => sum + val, 0) / validValues.length : 0;
+                return [ramo, average];
+            }));
+        }
+
         function calculateAndDisplayKPIs() {
             if (STATE.reportData.length === 0) {
                 alert("El archivo no contiene datos o no se pudo leer correctamente.");
@@ -618,9 +646,9 @@
             const COL_RAMO = "Ramo"; // Col G
             const COL_INDICADOR = "DENOMINACIÓN"; // Col A
             const COL_AVANCE_PCT = "Avance %";
-
-            // --- Añadir columnas calculadas para PCUM al reportData ---
-            const dataWithPcum = addPcumColumnsToData(STATE.reportData);
+            
+            // Los datos ya vienen con las columnas PCUM calculadas desde el paso final.
+            const dataWithPcum = STATE.reportData;
 
             // --- KPI 1: Programas Presupuestarios Únicos y desglose por Ramo ---
             const programasUnicos = new Set();
@@ -630,7 +658,6 @@
             let totalFrecuenciaProgramas = 0;
             let sumaPcumTotal = 0;
             let countPcumValidos = 0;
-            const pcumPorRamo = {}; // { 'Ramo1': { sum: X, count: Y }, ... }
 
             dataWithPcum.forEach(row => {
                 const programa = row[COL_PROG_PRESUP];
@@ -659,14 +686,9 @@
 
                 console.log(pcum, parseFloat(pcum));
 
-                if (pcum !== "N/A" && !isNaN(pcumValue)) {
+                if (pcum !== "N/A" && !isNaN(pcumValue)) { // Lógica para el promedio general
                     sumaPcumTotal += pcumValue;
                     countPcumValidos++;
-                    if (ramo && String(ramo).trim() !== '') {
-                        if (!pcumPorRamo[ramo]) pcumPorRamo[ramo] = { sum: 0, count: 0 };
-                        pcumPorRamo[ramo].sum += pcumValue;
-                        pcumPorRamo[ramo].count++;
-                    }
                 }
             });
 
@@ -737,10 +759,12 @@
 
             const kpiPcumPorRamoList = document.getElementById('kpiPcumPorRamo');
             kpiPcumPorRamoList.innerHTML = '';
-            Object.entries(pcumPorRamo)
-                .map(([ramo, data]) => ({ ramo, avg: data.sum / data.count }))
-                .sort((a, b) => b.avg - a.avg) // Ordenar por promedio PCUM descendente
-                .forEach(({ ramo, avg }) => {
+            
+            // Usar la nueva función dedicada para el cálculo por Ramo
+            const pcumAveragesByRamo = calculatePcumByRamo(dataWithPcum);
+            Object.entries(pcumAveragesByRamo)
+                .sort(([, avgA], [, avgB]) => avgB - avgA) // Ordenar por promedio PCUM descendente
+                .forEach(([ramo, avg]) => {
                     const li = document.createElement('li');
                     li.innerHTML = `<span class="font-semibold">${ramo}:</span> ${avg.toFixed(2)}`;
                     kpiPcumPorRamoList.appendChild(li);
@@ -907,6 +931,10 @@
 
                 log("Añadiendo columnas PCUM...");
                 const pcumWb = addPcumColumnsToWorkbook(cleanedWb);
+
+                // --- GUARDADO DE DATOS FINALES PARA EL REPORTE ---
+                log("Guardando datos finales para la pestaña de Reportes...");
+                STATE.finalReportData = XLSX.utils.sheet_to_json(pcumWb.Sheets["CONSOLIDADO_TOTAL"], { defval: "" });
 
                 log("Aplicando estilos finales...");
                 const styledWb = applyStylesToWorkbook(pcumWb);
