@@ -589,16 +589,42 @@
             const file = input.files[0];
             if (!file) return;
 
-            log(`Cargando archivo de reporte: ${file.name}`, "info");
-            const data = await file.arrayBuffer();
-            const wb = XLSX.read(data);
-            
-            // Asumimos que la hoja de interés es la primera
-            const sheetName = wb.SheetNames[0];
-            const ws = wb.Sheets[sheetName];
-            STATE.reportData = XLSX.utils.sheet_to_json(ws);
+            const label = input.nextElementSibling;
+            const originalHtml = label.innerHTML;
+            label.innerHTML = `<span class="loader border-t-white border-white/20 mr-2"></span> Cargando...`;
+            label.classList.add('opacity-75', 'pointer-events-none');
 
-            calculateAndDisplayKPIs();
+            try {
+                log(`Cargando archivo de reporte: ${file.name}`, "info");
+                const data = await file.arrayBuffer();
+                const wb = XLSX.read(data, { type: 'array' });
+                
+                // Lógica robusta para encontrar la hoja correcta.
+                // Primero busca "CONSOLIDADO_TOTAL", si no, usa la primera hoja que encuentre.
+                let sheetName = "CONSOLIDADO_TOTAL";
+                if (!wb.SheetNames.includes(sheetName)) {
+                    log(`Advertencia: No se encontró la hoja '${sheetName}'. Usando la primera hoja disponible: '${wb.SheetNames[0]}'.`, 'error');
+                    sheetName = wb.SheetNames[0];
+                    if (!sheetName) {
+                        throw new Error("El archivo Excel no contiene ninguna hoja.");
+                    }
+                }
+
+                const ws = wb.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(ws, { defval: "" });
+
+                // Asignar los datos leídos para que los KPIs se calculen sobre ellos.
+                STATE.reportData = jsonData;
+                calculateAndDisplayKPIs();
+
+            } catch (error) {
+                log(`Error al procesar el archivo subido: ${error.message}`, 'error');
+                alert(`Hubo un error al procesar el archivo: ${error.message}`);
+            } finally {
+                label.innerHTML = originalHtml;
+                label.classList.remove('opacity-75', 'pointer-events-none');
+                input.value = ''; // Resetear el input para permitir subir el mismo archivo de nuevo
+            }
         }
 
         /**
@@ -647,8 +673,10 @@
             const COL_INDICADOR = "DENOMINACIÓN"; // Col A
             const COL_AVANCE_PCT = "Avance %";
             
-            // Los datos ya vienen con las columnas PCUM calculadas desde el paso final.
-            const dataWithPcum = STATE.reportData;
+            // REFACTORIZACIÓN: Asegurar que los cálculos de PCUM se apliquen siempre,
+            // tanto para datos del estado como para archivos subidos.
+            log("Asegurando que los datos para el reporte tengan las columnas PCUM calculadas...");
+            const dataWithPcum = addPcumColumnsToData(STATE.reportData);
 
             // --- KPI 1: Programas Presupuestarios Únicos y desglose por Ramo ---
             const programasUnicos = new Set();
