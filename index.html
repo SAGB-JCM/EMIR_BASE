@@ -604,6 +604,46 @@
             calculateAndDisplayKPIs();
         }
 
+        /**
+         * Calcula las métricas de PCUM a partir de un conjunto de datos.
+         * @param {Array<Object>} data - El array de objetos de datos, donde cada objeto es una fila.
+         * @param {string} pcumColName - El nombre de la columna que contiene los valores de PCUM.
+         * @param {string} ramoColName - El nombre de la columna que contiene los valores de Ramo.
+         * @returns {Object} Un objeto con las métricas calculadas: { average, totalSum, validCount, naCount, byRamo }.
+         */
+        function calculatePcumMetrics(data, pcumColName, ramoColName) {
+            let totalSum = 0;
+            let validCount = 0;
+            let naCount = 0;
+            const byRamo = {};
+
+            data.forEach(row => {
+                const pcumValue = row[pcumColName];
+                const ramo = row[ramoColName];
+
+                // Intenta convertir el valor de PCUM a un número.
+                const numericPcum = parseFloat(pcumValue);
+
+                // Si la conversión es exitosa (no es NaN), se considera un valor válido.
+                if (!isNaN(numericPcum)) {
+                    totalSum += numericPcum;
+                    validCount++;
+                    if (ramo && String(ramo).trim() !== '') {
+                        if (!byRamo[ramo]) byRamo[ramo] = { sum: 0, count: 0 };
+                        byRamo[ramo].sum += numericPcum;
+                        byRamo[ramo].count++;
+                    }
+                } else {
+                    // Si no es un número (incluye "N/A", "", null, etc.), se cuenta como no aplicable.
+                    naCount++;
+                }
+            });
+
+            const average = validCount > 0 ? (totalSum / validCount) : 0;
+
+            return { average, totalSum, validCount, naCount, byRamo };
+        }
+
         function calculateAndDisplayKPIs() {
             if (STATE.reportData.length === 0) {
                 alert("El archivo no contiene datos o no se pudo leer correctamente.");
@@ -629,10 +669,6 @@
             const frecuenciaPorPrograma = {}; // { 'ProgA': 20, 'ProgB': 15 }
             let totalFrecuenciaRamos = 0;
             let totalFrecuenciaProgramas = 0;
-            let sumaPcumTotal = 0;
-            let countPcumValidos = 0;
-            let countPcumNA = 0; // NUEVO: Contador para los N/A excluidos.
-            const pcumPorRamo = {}; // { 'Ramo1': { sum: X, count: Y }, ... }
 
             dataWithPcum.forEach(row => {
                 const programa = row[COL_PROG_PRESUP];
@@ -654,32 +690,6 @@
                 if (programa && String(programa).trim() !== '') {
                     frecuenciaPorPrograma[programa] = (frecuenciaPorPrograma[programa] || 0) + 1;
                     totalFrecuenciaProgramas++;
-                }
-
-                // KPI 4: Acumular PCUM (Lógica simplificada y corregida)
-                // Si el PCUM es explícitamente "N/A", se cuenta como excluido y se ignora para el cálculo.
-                if (pcum === "N/A") {
-                    countPcumNA++;
-                    // También se registra como N/A para el desglose por ramo.
-                    if (ramo && String(ramo).trim() !== '') {
-                        if (!frecuenciaPorRamo[ramo]) frecuenciaPorRamo[ramo] = { validos: 0, na: 0 };
-                        frecuenciaPorRamo[ramo].na++;
-                        frecuenciaPorRamo[ramo].validos--; // Se resta del conteo de válidos para no duplicar.
-                    }
-                } else {
-                    const pcumValue = parseFloat(pcum);
-                    // Solo si la conversión a número es exitosa, se procesa.
-                    if (!isNaN(pcumValue)) {
-                        sumaPcumTotal += pcumValue;
-                        countPcumValidos++;
- 
-                        // Acumular para el desglose por Ramo
-                        if (ramo && String(ramo).trim() !== '') {
-                            if (!pcumPorRamo[ramo]) pcumPorRamo[ramo] = { sum: 0, count: 0 };
-                            pcumPorRamo[ramo].sum += pcumValue;
-                            pcumPorRamo[ramo].count++;
-                        }
-                    }
                 }
             });
 
@@ -727,21 +737,24 @@
                 });
 
             // --- Rellenar KPI 4 (PCUM) ---
-            log(`Cálculo de PCUM: Se utilizaron ${countPcumValidos} registros válidos (excluyendo ${countPcumNA} registros "N/A").`, 'info');
-            const promedioPcum = countPcumValidos > 0 ? (sumaPcumTotal / countPcumValidos) : 0;
+            // Se utiliza la nueva función modular para obtener las métricas del PCUM.
+            const pcumMetrics = calculatePcumMetrics(dataWithPcum, "PCUM", COL_RAMO);
+
+            log(`Cálculo de PCUM: Se utilizaron ${pcumMetrics.validCount} registros válidos (excluyendo ${pcumMetrics.naCount} registros no numéricos/N/A).`, 'info');
+            
             const kpiPcumElement = document.getElementById('kpiPromedioPcum');
             const kpiCard4 = document.getElementById('kpiCard4');
             const pcumStatus = document.getElementById('pcumStatus');
 
-            kpiPcumElement.textContent = promedioPcum.toFixed(2);
+            kpiPcumElement.textContent = pcumMetrics.average.toFixed(2);
 
             // Lógica de colores y etiquetas para PCUM
             kpiCard4.classList.remove('border-green-500', 'border-yellow-500', 'border-red-500', 'bg-green-50', 'bg-yellow-50', 'bg-red-50');
-            if (promedioPcum >= 70) {
+            if (pcumMetrics.average >= 70) {
                 kpiCard4.classList.add('border-l-4', 'border-green-500');
                 pcumStatus.textContent = 'Adecuado';
                 pcumStatus.className = 'text-sm font-bold px-3 py-1 rounded-full bg-green-100 text-green-800';
-            } else if (promedioPcum >= 50) {
+            } else if (pcumMetrics.average >= 50) {
                 kpiCard4.classList.add('border-l-4', 'border-yellow-500');
                 pcumStatus.textContent = 'Regular';
                 pcumStatus.className = 'text-sm font-bold px-3 py-1 rounded-full bg-yellow-100 text-yellow-800';
@@ -753,7 +766,7 @@
 
             const kpiPcumPorRamoList = document.getElementById('kpiPcumPorRamo');
             kpiPcumPorRamoList.innerHTML = '';
-            Object.entries(pcumPorRamo)
+            Object.entries(pcumMetrics.byRamo)
                 .map(([ramo, data]) => ({ ramo, avg: data.sum / data.count }))
                 .sort((a, b) => b.avg - a.avg) // Ordenar por promedio PCUM descendente
                 .forEach(({ ramo, avg }) => {
