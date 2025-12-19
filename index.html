@@ -594,7 +594,7 @@
                 <h2 class="text-2xl font-bold text-gray-700 mb-6">Métricas Principales</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                     <!-- KPI 1: Programas Presupuestarios -->
-                    <div id="kpiCard1" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transition-transform transform hover:scale-105" onclick="openKpiDetailModal()">
+                    <div id="kpiCard1" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transition-transform transform hover:scale-105" onclick="openKpiDetailModal('programas')">
                         <div class="p-5">
                             <p class="text-sm text-gray-500 uppercase">Programas Presupuestarios</p>
                             <p id="kpiTotalProgramas" class="text-4xl font-bold text-[#9C2348]">0</p>
@@ -602,7 +602,7 @@
                         </div>
                     </div>
                     <!-- KPI 2: Total de Indicadores -->
-                    <div id="kpiCard2" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transition-transform transform hover:scale-105" onclick="openKpiDetailModal()">
+                    <div id="kpiCard2" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transition-transform transform hover:scale-105" onclick="openKpiDetailModal('indicadores')">
                         <div class="p-5">
                             <p class="text-sm text-gray-500 uppercase">Total de Indicadores</p>
                             <p id="kpiTotalIndicadores" class="text-4xl font-bold text-[#A6802D]">0</p>
@@ -610,7 +610,7 @@
                         </div>
                     </div>
                     <!-- KPI 3: Total de Ramos -->
-                    <div id="kpiCard3" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transition-transform transform hover:scale-105" onclick="openKpiDetailModal()">
+                    <div id="kpiCard3" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transition-transform transform hover:scale-105" onclick="openKpiDetailModal('ramos')">
                         <div class="p-5">
                             <p class="text-sm text-gray-500 uppercase">Total de Ramos</p>
                             <p id="kpiTotalRamos" class="text-4xl font-bold text-[#1E5B4F]">0</p>
@@ -731,11 +731,26 @@
             document.getElementById(detailId).classList.toggle('open');
         }
 
-        function openKpiDetailModal() {
+        function openKpiDetailModal(type = 'indicadores') {
             if (Object.keys(STATE.kpiDetailData).length === 0) {
                 alert("No hay datos de desglose para mostrar. Por favor, genere los reportes primero.");
                 return;
             }
+
+            const modalTitle = document.querySelector('#kpiDetailModal h2');
+            const modalSubtitle = document.querySelector('#kpiDetailModal p');
+
+            // Cambiar el contenido del modal según el tipo de desglose
+            if (type === 'programas') {
+                modalTitle.textContent = 'Desglose de Programas por Ramo';
+                modalSubtitle.textContent = 'Explora los programas presupuestarios únicos para cada Ramo.';
+                buildProgramasTree();
+            } else { // 'indicadores' o 'ramos' usan el mismo desglose detallado
+                modalTitle.textContent = 'Desglose de Indicadores';
+                modalSubtitle.textContent = 'Explora la distribución de indicadores por Ramo, Tipo de UR, Programa e Indicador.';
+                buildKpiDetailTree();
+            }
+
             document.getElementById('kpiDetailModal').classList.remove('hidden');
         }
 
@@ -934,9 +949,6 @@
             // KPI 3: Total de Ramos
             document.getElementById('kpiTotalRamos').textContent = ramosUnicos.size;
 
-            // --- Construir el árbol de desglose para el modal ---
-            buildKpiDetailTree();
-
 
             // --- Rellenar KPI 5 (Cumplimiento Promedio - AoA) - Lógica sin cambios ---
             const kpiPcumPorRamoAoAContainer = document.getElementById('kpiPcumPorRamoAoA');
@@ -1079,6 +1091,46 @@
                     });
                     ramoHtml += `</div></div>`;
                 });
+                ramoHtml += `</div></div>`;
+                container.innerHTML += ramoHtml;
+            });
+        }
+
+        function buildProgramasTree() {
+            const container = document.getElementById('kpiDetailTreeContainer');
+            container.innerHTML = ''; // Limpiar contenido anterior
+            const data = STATE.kpiDetailData;
+
+            // Ordenar Ramos alfabéticamente
+            const sortedRamos = Object.keys(data).sort();
+
+            sortedRamos.forEach(ramo => {
+                const ramoNode = data[ramo];
+                // Recolectar todos los programas únicos para este ramo
+                const programasUnicos = new Set();
+                Object.values(ramoNode.tipos).forEach(tipoNode => {
+                    Object.values(tipoNode.urs).forEach(urNode => {
+                        Object.keys(urNode.programas).forEach(programa => {
+                            programasUnicos.add(programa);
+                        });
+                    });
+                });
+
+                const sortedProgramas = Array.from(programasUnicos).sort();
+
+                let ramoHtml = `<div class="tree-item border-b border-gray-200 py-2">
+                    <div class="flex justify-between items-center cursor-pointer p-2 rounded hover:bg-gray-100" onclick="toggleTree(this)">
+                        <span class="font-bold text-gray-800"><i class="fa-solid fa-building-columns fa-fw mr-2 text-gray-400"></i>${ramo}</span>
+                        <span class="font-semibold text-gray-700 bg-gray-200 px-2 py-1 rounded-md">${sortedProgramas.length}</span>
+                    </div>
+                    <div class="tree-content pl-8 pt-2 space-y-1 border-l-2 border-gray-200 ml-2">`;
+
+                sortedProgramas.forEach(programa => {
+                    ramoHtml += `<div class="py-1">
+                        <span class="text-gray-700"><i class="fa-solid fa-bullseye fa-fw mr-2 text-gray-400"></i>${programa}</span>
+                    </div>`;
+                });
+
                 ramoHtml += `</div></div>`;
                 container.innerHTML += ramoHtml;
             });
