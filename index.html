@@ -409,10 +409,10 @@
             <div class="border-b border-gray-300">
                 <nav class="flex -mb-px space-x-4" aria-label="Tabs">
                     <button onclick="switchTab(event, 'emir')" class="tab-btn active whitespace-nowrap py-3 px-5 border-b-4 text-gray-500 hover:text-gray-700 hover:border-gray-400 font-medium text-lg transition-colors duration-300">
-                        <i class="fa-solid fa-gears mr-2"></i>Consolidadar MIR
+                        <i class="fa-solid fa-gears mr-2"></i>Fuente de Información
                     </button>
                     <button onclick="switchTab(event, 'reports')" class="tab-btn whitespace-nowrap py-3 px-5 border-b-4 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-400 font-medium text-lg transition-colors duration-300">
-                        <i class="fa-solid fa-chart-pie mr-2"></i>Reportes
+                        <i class="fa-solid fa-chart-pie mr-2"></i>Indicadores
                     </button>
                 </nav>
             </div>
@@ -558,7 +558,7 @@
                     <!-- Opción 1: Usar resultado del consolidador -->
                     <div class="border border-gray-200 rounded-lg p-6 bg-gray-50 text-center">
                         <i class="fa-solid fa-wand-magic-sparkles text-4xl text-gray-400 mb-4"></i>
-                        <h3 class="font-bold mb-2">Opción 1: Usar Resultado del Consolidador</h3>
+                        <h3 class="font-bold mb-2">Opción 1: Obtener Indicadores Usando la Fuente de Información</h3>
                         <p class="text-sm text-gray-600 mb-4">Analiza directamente el archivo final generado en la pestaña anterior.</p>
                         <button id="useProcessedFileBtn" onclick="generateReportsFromState()" class="bg-[#1E5B4F] text-white px-4 py-2 rounded hover:bg-opacity-90 transition flex items-center gap-2 mx-auto">
                             <i class="fa-solid fa-play"></i>
@@ -569,7 +569,7 @@
                     <!-- Opción 2: Cargar archivo modificado -->
                     <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#9C2348] transition-colors h-full flex flex-col justify-center">
                          <i class="fa-solid fa-file-excel text-4xl text-gray-400 mb-4"></i>
-                        <h3 class="font-bold mb-2">Opción 2: Cargar Archivo Modificado</h3>
+                        <h3 class="font-bold mb-2">Opción 2: Cargar un Archivo Modificado</h3>
                         <p class="text-sm text-gray-600 mb-4">Sube un archivo consolidado (XLSX) si has realizado cambios manuales.</p>
                         <input type="file" id="reportFileInput" accept=".xlsx" class="hidden" onchange="generateReportsFromFile(this)">
                         <label for="reportFileInput" class="cursor-pointer bg-[#9C2348] text-white px-4 py-2 rounded hover:bg-opacity-90 transition">
@@ -612,7 +612,7 @@
             <!-- ===== Fin Modal de Desglose de KPIs ===== -->
 
             <div id="reportDisplayArea" class="hidden">
-                <h2 class="text-2xl font-bold text-gray-700 mb-6">Métricas de Desempeño</h2>
+                <h2 class="text-2xl font-bold text-gray-700 mb-6">Cuenta Pública - PCUM y DPP</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                     <!-- KPI 1: Programas Presupuestarios -->
                     <div id="kpiCard1" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transition-transform transform hover:scale-105" 
