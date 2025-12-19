@@ -25,6 +25,10 @@
             --success-color: #10B981; /* Verde Claro */
             --danger-color: #EF4444; /* Rojo */
         }
+        body {
+            /* Aplica un zoom global para que la app se vea más pequeña */
+            zoom: 0.75;
+        }
         .step-card {
             transition: all 0.3s ease;
         }
@@ -77,37 +81,54 @@
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
 
-    <!-- Instructions Modal -->
-    <div id="instructionsModal" class="hidden fixed inset-0 z-50">
+    <!-- Modal: Acerca de la Herramienta (Refactorizado) -->
+    <div id="instructionsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
         <!-- Backdrop -->
         <div onclick="toggleInstructions()" class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
         <!-- Modal Content -->
-        <div class="modal-content relative bg-white rounded-lg shadow-xl p-8 m-4 max-w-lg mx-auto mt-20 border-t-4 border-[#A6802D]">
-            <h2 class="font-bold text-2xl mb-4 text-[#A6802D]"><i class="fa-solid fa-circle-info mr-2"></i>Información</h2>
-            <ol class="list-decimal list-inside text-gray-700 space-y-2">
-                <li>Herramienta elaborada por <strong>José Cruz Gómez Rodríguez</strong></li>
-                <li>Correo electrónico: <strong>josluigomez@gmail.com</strong></li>
-                <li><strong>DC-620-2025</strong></li>
-            </ol>
-            <button onclick="toggleInstructions()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+        <div class="modal-content relative bg-white rounded-lg shadow-xl w-full max-w-2xl mx-auto overflow-hidden border-t-8 border-[#9C2348]">
+            <!-- Header -->
+            <div class="flex justify-between items-center p-6 border-b">
+                <h2 class="font-bold text-2xl text-[#9C2348] flex items-center"><i class="fa-solid fa-rocket mr-3"></i>Acerca de la Herramienta</h2>
+                <button onclick="toggleInstructions()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            <!-- Body -->
+            <div class="p-6 text-gray-700">
+                <p class="text-justify mb-6">
+                    Herramienta diseñada para facilitar el cálculo, análisis y validación de los indicadores Porcentaje de Cumplimiento de Metas de Desempeño (PCUM) 2024 y Desempeño de la Entrega de Productos de los Programas Presupuestarios en los que participa el Ente Público (DPP) 2024, mediante la extracción y procesamiento automatizado de metadatos provenientes de la información oficial publicada en la Cuenta Pública y en el Portal de Transparencia Presupuestaria. Su propósito es apoyar la evaluación objetiva del avance en metas, resultados y productos institucionales, fortaleciendo la rendición de cuentas y el seguimiento del desempeño gubernamental.
+                </p>
+            </div>
+            <!-- Footer -->
+            <div class="bg-gray-50 p-6 border-t">
+                <h3 class="font-semibold text-lg text-gray-600 mb-3">Detalles del Autor</h3>
+                <ul class="text-gray-600 space-y-2">
+                    <li><i class="fa-solid fa-user-pen w-5 mr-2 text-[#A6802D]"></i>Herramienta elaborada por <strong>José Cruz Gómez Rodríguez</strong></li>
+                    <li><i class="fa-solid fa-envelope w-5 mr-2 text-[#A6802D]"></i>Correo electrónico: <strong>josluigomez@gmail.com</strong></li>
+                    <li><i class="fa-solid fa-file-code w-5 mr-2 text-[#A6802D]"></i><strong>DC-620-2025</strong></li>
+                </ul>
+            </div>
         </div>
     </div>
 
-    <!-- PCUM Info Modal -->
-    <div id="pcumInfoModal" class="hidden fixed inset-0 z-50">
+    <!-- Modal: Metodología PCUM (Refactorizado) -->
+    <div id="pcumInfoModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
         <!-- Backdrop -->
         <div onclick="togglePcumInfoModal()" class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
         <!-- Modal Content -->
-        <div class="modal-content relative bg-white rounded-lg shadow-xl p-8 m-4 max-w-lg mx-auto mt-20 border-t-4 border-[#A6802D]">
-            <h2 class="font-bold text-2xl mb-4 text-[#A6802D]"><i class="fa-solid fa-circle-info mr-2"></i>Metodología de Cálculo PCUM</h2>
-            <p class="text-gray-700 space-y-2 mb-6">
-                La metodología usada para el cálculo se establece en el proyecto de Metodología de Evaluación de la Gestión Gubernamental 2023.
-            </p>
-            <button onclick="downloadPcumMethodology()" class="bg-[#1E5B4F] text-white px-4 py-2 rounded hover:bg-opacity-90 transition flex items-center gap-2">
-                <i class="fa-solid fa-download"></i>
-                <span>Descargar Metodología</span>
-            </button>
-            <button onclick="togglePcumInfoModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+        <div class="modal-content relative bg-white rounded-lg shadow-xl w-full max-w-lg mx-auto overflow-hidden border-t-8 border-[#A6802D]">
+            <!-- Header -->
+            <div class="flex justify-between items-center p-6 border-b">
+                <h2 class="font-bold text-2xl text-[#A6802D] flex items-center"><i class="fa-solid fa-book-open mr-3"></i>Metodología PCUM</h2>
+                <button onclick="togglePcumInfoModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            <!-- Body -->
+            <div class="p-6 text-gray-700">
+                <p class="mb-6">La metodología usada para el cálculo se establece en el proyecto de Metodología de Evaluación de la Gestión Gubernamental 2023.</p>
+                <button onclick="downloadPcumMethodology()" class="bg-[#1E5B4F] text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition flex items-center gap-2 font-semibold">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Descargar Metodología</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -241,18 +262,6 @@
             <h1 class="text-4xl font-bold text-[#9C2348] mb-4">
                 Evaluación de la Gestión Gubernamental 2024 (EEG)
             </h1>
-
-            <p class="text-gray-600 max-w-3xl text-justify">
-                Herramienta diseñada para facilitar el cálculo, análisis y validación de los
-                indicadores Porcentaje de Cumplimiento de Metas de Desempeño (PCUM) 2024 y
-                Desempeño de la Entrega de Productos de los Programas Presupuestarios en los
-                que participa el Ente Público (DPP) 2024, mediante la extracción y
-                procesamiento automatizado de metadatos provenientes de la información
-                oficial publicada en la Cuenta Pública y en el Portal de Transparencia
-                Presupuestaria. Su propósito es apoyar la evaluación objetiva del avance en
-                metas, resultados y productos institucionales, fortaleciendo la rendición
-                de cuentas y el seguimiento del desempeño gubernamental.
-            </p>
         </header>
 
         <!-- Tab Navigation -->
@@ -269,15 +278,13 @@
             </div>
         </div>
 
-        <!-- Tab Content -->
-        <div id="emir" class="tab-content">
+        <!-- Tab Content: Consolidador MIR -->
+        <div id="emir" class="tab-content relative">
 
-        <!-- Info Button -->
-        <div class="relative mb-8">
-            <button onclick="toggleInstructions()" class="absolute -top-20 right-0 bg-blue-100 text-blue-800 p-3 rounded-full shadow-md hover:bg-blue-200 transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500" title="Mostrar Instrucciones">
+        <!-- Botón de Información Unificado (Acerca de) -->
+        <button onclick="toggleInstructions()" class="absolute -top-20 right-0 bg-white text-gray-500 p-3 rounded-full shadow-lg hover:shadow-xl hover:text-[#9C2348] transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#9C2348]" title="Acerca de la Herramienta">
                 <i class="fa-solid fa-circle-info text-2xl"></i>
-            </button>
-        </div>
+        </button>
         
         <!-- Input Section -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -394,8 +401,9 @@
 
         </div>
 
-        <div id="reports" class="tab-content hidden">
-            <!-- Report Input Section -->
+        <!-- Tab Content: Reportes -->
+        <div id="reports" class="tab-content hidden relative">
+             <!-- Report Input Section -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                     <!-- Opción 1: Usar resultado del consolidador -->
@@ -422,13 +430,10 @@
                 </div>
             </div>
 
-            <!-- Report Display Area -->
-            <!-- PCUM Methodology Button -->
-            <div class="relative mb-4">
-                <button onclick="togglePcumInfoModal()" class="absolute -top-16 right-0 bg-blue-100 text-blue-800 p-3 rounded-full shadow-md hover:bg-blue-200 transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500" title="Ver metodología de cálculo PCUM">
-                    <i class="fa-solid fa-book-open text-2xl"></i>
-                </button>
-            </div>
+            <!-- Botón de Información Unificado (Metodología) -->
+            <button onclick="togglePcumInfoModal()" class="absolute -top-20 right-0 bg-white text-gray-500 p-3 rounded-full shadow-lg hover:shadow-xl hover:text-[#A6802D] transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#A6802D]" title="Ver metodología de cálculo PCUM">
+                <i class="fa-solid fa-book-open text-2xl"></i>
+            </button>
 
             <div id="reportDisplayArea" class="hidden">
                 <h2 class="text-2xl font-bold text-gray-700 mb-6">Métricas Principales</h2>
