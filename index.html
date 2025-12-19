@@ -958,30 +958,38 @@
             document.getElementById('kpiTotalRamos').textContent = ramosUnicos.size;
 
 
-            // --- Rellenar KPI 5 (Cumplimiento Promedio - AoA) - Lógica sin cambios ---
+            // --- Rellenar KPI 5 (Cumplimiento Promedio - AoA) ---
             const kpiPcumPorRamoAoAContainer = document.getElementById('kpiPcumPorRamoAoA');
-            const urAverages = { Dependencia: [], Entidad: [] };
-            const urAveragesByName = { Dependencia: {}, Entidad: {} };
+            kpiPcumPorRamoAoAContainer.innerHTML = ''; // Limpiar antes de rellenar
 
-            Object.values(pcumDataByRamoAndUrType).forEach(urTypes => {
-                ['Dependencia', 'Entidad'].forEach(tipo => {
-                    Object.entries(urTypes[tipo] || {}).forEach(([ur, pcums]) => {
-                        const avg = pcums.reduce((a, b) => a + b, 0) / pcums.length;
-                        if (!urAveragesByName[tipo][ur]) { // Evitar duplicados si una UR aparece en varios ramos
-                            urAveragesByName[tipo][ur] = avg;
-                            urAverages[tipo].push(avg);
-                        }
-                    });
+            const ramoTotals = [];
+            const ramoDepTotals = [];
+            const ramoEntTotals = [];
+
+            Object.entries(pcumDataByRamoAndUrType)
+                .sort(([ramoA], [ramoB]) => ramoA.localeCompare(ramoB))
+                .forEach(([ramo, urTypes]) => {
+                    const depAvgs = Object.values(urTypes.Dependencia || {}).flat();
+                    const entAvgs = Object.values(urTypes.Entidad || {}).map(pcums => pcums.reduce((a, b) => a + b, 0) / pcums.length);
+                    
+                    const ramoDepAvg = depAvgs.length > 0 ? depAvgs.reduce((a, b) => a + b, 0) / depAvgs.length : 0;
+                    const ramoEntAvg = entAvgs.length > 0 ? entAvgs.reduce((a, b) => a + b, 0) / entAvgs.length : 0;
+                    const ramoTotalAvg = (ramoDepAvg > 0 && ramoEntAvg > 0) ? (ramoDepAvg + ramoEntAvg) / 2 : (ramoDepAvg > 0 ? ramoDepAvg : ramoEntAvg);
+
+                    // Acumular los promedios de cada ramo para el cálculo global
+                    if (ramoTotalAvg > 0) ramoTotals.push(ramoTotalAvg);
+                    if (ramoDepAvg > 0) ramoDepTotals.push(ramoDepAvg);
+                    if (ramoEntAvg > 0) ramoEntTotals.push(ramoEntAvg);
+
+                    // (La lógica para construir el HTML del desglose se moverá más abajo)
                 });
-            });
 
-            // Para Dependencia, es el promedio simple de todos sus indicadores (calculado previamente).
-            const aoaDependencia = countPcumDependencia > 0 ? (sumaPcumDependencia / countPcumDependencia) : 0;
-            // Para Entidad, es el promedio de los promedios de cada UR de tipo Entidad.
-            const aoaEntidad = urAverages.Entidad.length > 0 ? urAverages.Entidad.reduce((a, b) => a + b, 0) / urAverages.Entidad.length : 0;
-            // El total es el promedio de los dos valores anteriores (si ambos existen).
-            const aoaTotal = (countPcumDependencia > 0 && urAverages.Entidad.length > 0) ? (aoaDependencia + aoaEntidad) / 2 : (aoaDependencia > 0 ? aoaDependencia : aoaEntidad);
+            // --- CÁLCULO DE TOTALES GLOBALES (PROMEDIO DE PROMEDIOS DE RAMOS) ---
+            const aoaTotal = ramoTotals.length > 0 ? ramoTotals.reduce((a, b) => a + b, 0) / ramoTotals.length : 0;
+            const aoaDependencia = ramoDepTotals.length > 0 ? ramoDepTotals.reduce((a, b) => a + b, 0) / ramoDepTotals.length : 0;
+            const aoaEntidad = ramoEntTotals.length > 0 ? ramoEntTotals.reduce((a, b) => a + b, 0) / ramoEntTotals.length : 0;
 
+            // --- MOSTRAR TOTALES GLOBALES EN LA TARJETA ---
             document.getElementById('kpiAoAPcum').textContent = aoaTotal.toFixed(2);
             document.getElementById('kpiAoADependenciaTotal').textContent = aoaDependencia > 0 ? aoaDependencia.toFixed(2) : 'N/A';
             document.getElementById('kpiAoAEntidadTotal').textContent = aoaEntidad.toFixed(2);
@@ -1004,8 +1012,7 @@
                 pcumAoAStatus.className = 'text-sm font-bold px-3 py-1 rounded-full bg-red-100 text-red-800';
             }
 
-            // Rellenar desglose para KPI 5 (similar a KPI 4 pero con lógica AoA)
-            kpiPcumPorRamoAoAContainer.innerHTML = '';
+            // --- RELLENAR DESGLOSE DETALLADO EN LA TARJETA ---
             Object.entries(pcumDataByRamoAndUrType)
                 .sort(([ramoA], [ramoB]) => ramoA.localeCompare(ramoB))
                 .forEach(([ramo, urTypes]) => {
@@ -1015,6 +1022,7 @@
 
                     const depAvgs = Object.values(urTypes.Dependencia || {}).flat();
                     const entAvgs = Object.values(urTypes.Entidad || {}).map(pcums => pcums.reduce((a, b) => a + b, 0) / pcums.length);
+                    
                     const ramoDepAvg = depAvgs.length > 0 ? depAvgs.reduce((a, b) => a + b, 0) / depAvgs.length : 0;
                     const ramoEntAvg = entAvgs.length > 0 ? entAvgs.reduce((a, b) => a + b, 0) / entAvgs.length : 0;
                     const ramoTotalAvg = (ramoDepAvg > 0 && ramoEntAvg > 0) ? (ramoDepAvg + ramoEntAvg) / 2 : (ramoDepAvg > 0 ? ramoDepAvg : ramoEntAvg);
