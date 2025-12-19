@@ -75,6 +75,14 @@
         .kpi-card-detail.open {
             max-height: 500px; /* Adjust as needed */
         }
+        /* Estilos para el nuevo modal de desglose de KPI */
+        .tree-item {
+            transition: background-color 0.2s ease;
+        }
+        .tree-item:hover {
+            background-color: #f9fafb;
+        }
+        .tree-content { display: none; }
 
 
     </style>
@@ -555,43 +563,58 @@
                 <i class="fa-solid fa-book-open text-2xl"></i>
             </button>
 
+            <!-- ===== Nuevo Modal de Desglose de KPIs ===== -->
+            <div id="kpiDetailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+                <!-- Backdrop -->
+                <div onclick="closeKpiDetailModal()" class="modal-backdrop fixed inset-0 bg-black bg-opacity-60"></div>
+                <!-- Modal Content -->
+                <div class="modal-content relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden border-t-8" style="border-top-color: var(--primary-color);">
+                    <!-- Header -->
+                    <div class="flex justify-between items-start p-6 border-b">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-lg bg-gradient-to-br from-[var(--primary-color)] to-[var(--secondary-color)] flex items-center justify-center shadow-md">
+                                <i class="fa-solid fa-sitemap text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="font-extrabold text-2xl text-gray-800">Desglose de Indicadores</h2>
+                                <p class="text-sm text-gray-500 mt-1">Explora la distribución de indicadores por Ramo, Tipo de UR, Programa e Indicador.</p>
+                            </div>
+                        </div>
+                        <button onclick="closeKpiDetailModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-semibold px-3 transition-colors" aria-label="Cerrar">&times;</button>
+                    </div>
+                    <!-- Body (donde se inyectará el árbol) -->
+                    <div id="kpiDetailTreeContainer" class="p-6 max-h-[70vh] overflow-y-auto text-sm">
+                        <!-- El árbol de desglose se generará aquí con JavaScript -->
+                    </div>
+                </div>
+            </div>
+            <!-- ===== Fin Modal de Desglose de KPIs ===== -->
+
             <div id="reportDisplayArea" class="hidden">
                 <h2 class="text-2xl font-bold text-gray-700 mb-6">Métricas Principales</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                     <!-- KPI 1: Programas Presupuestarios -->
-                    <div id="kpiCard1" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer" onclick="toggleKpiDetail('kpiDetail1')">
+                    <div id="kpiCard1" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transition-transform transform hover:scale-105" onclick="openKpiDetailModal()">
                         <div class="p-5">
                             <p class="text-sm text-gray-500 uppercase">Programas Presupuestarios</p>
                             <p id="kpiTotalProgramas" class="text-4xl font-bold text-[#9C2348]">0</p>
-                            <p class="text-xs text-gray-400">Total de programas únicos (clic para ver listado)</p>
-                        </div>
-                        <div id="kpiDetail1" class="kpi-card-detail bg-gray-50 border-t border-gray-200 px-5 py-3">
-                            <h4 class="font-bold text-sm mb-2 text-gray-600">Ver Programas</h4>
-                            <ul id="kpiProgramasPorRamo" class="text-sm text-gray-700 space-y-1 max-h-48 overflow-y-auto"></ul>
+                            <p class="text-xs text-gray-400">Total de programas únicos</p>
                         </div>
                     </div>
-                    <!-- KPI 3: Indicadores por Programa -->
-                    <div id="kpiCard3" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer" onclick="toggleKpiDetail('kpiDetail3')">
+                    <!-- KPI 2: Total de Indicadores -->
+                    <div id="kpiCard2" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transition-transform transform hover:scale-105" onclick="openKpiDetailModal()">
                         <div class="p-5">
-                            <p class="text-sm text-gray-500 uppercase">Indicadores por Programa Presupuestario</p>
-                            <p id="kpiFrecuenciaProgramas" class="text-4xl font-bold text-[#A6802D]">0</p>
-                            <p class="text-xs text-gray-400">Total de indicadores por progrma (clic para ver desglose)</p>
-                        </div>
-                        <div id="kpiDetail3" class="kpi-card-detail bg-gray-50 border-t border-gray-200 px-5 py-3">
-                            <h4 class="font-bold text-sm mb-2 text-gray-600">Desglose por Programa</h4>
-                            <ul id="kpiDesgloseProgramas" class="text-sm text-gray-700 space-y-1 max-h-48 overflow-y-auto"></ul>
+                            <p class="text-sm text-gray-500 uppercase">Total de Indicadores</p>
+                            <p id="kpiTotalIndicadores" class="text-4xl font-bold text-[#A6802D]">0</p>
+                            <p class="text-xs text-gray-400">Total de indicadores evaluados</p>
                         </div>
                     </div>
-                    <!-- KPI 2: Indicadores por Ramo -->
-                    <div id="kpiCard2" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer" onclick="toggleKpiDetail('kpiDetail2')">
+                    <!-- KPI 3: Total de Ramos -->
+                    <div id="kpiCard3" class="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transition-transform transform hover:scale-105" onclick="openKpiDetailModal()">
                         <div class="p-5">
-                            <p class="text-sm text-gray-500 uppercase">Indicadores por Ramo</p>
-                            <p id="kpiFrecuenciaRamos" class="text-4xl font-bold text-[#1E5B4F]">0</p>
-                            <p class="text-xs text-gray-400">Total de indicadores por Ramo (clic para ver desglose)</p>
-                        </div>
-                        <div id="kpiDetail2" class="kpi-card-detail bg-gray-50 border-t border-gray-200 px-5 py-3">
-                            <h4 class="font-bold text-sm mb-2 text-gray-600">Desglose por Ramo</h4>
-                            <ul id="kpiDesgloseRamos" class="text-sm text-gray-700 space-y-1 max-h-48 overflow-y-auto"></ul>
+                            <p class="text-sm text-gray-500 uppercase">Total de Ramos</p>
+                            <p id="kpiTotalRamos" class="text-4xl font-bold text-[#1E5B4F]">0</p>
+                            <p class="text-xs text-gray-400">Total de ramos únicos con indicadores</p>
                         </div>
                     </div>
                 </div>
@@ -643,7 +666,8 @@
             wbStep6: null, // The workbook object after Step 6
             reportData: [], // Array of objects for the report tab
             indicadoresData: null, // Data from the uploaded indicadores CSV
-            finalReportData: null // The final, definitive data used for the download, to be used by the report tab
+            finalReportData: null, // The final, definitive data used for the download, to be used by the report tab
+            kpiDetailData: {} // Structured data for the new KPI detail modal
         };
 
         // === LOGGING UTILS ===
@@ -705,6 +729,21 @@
         // === REPORTING LOGIC ===
         function toggleKpiDetail(detailId) {
             document.getElementById(detailId).classList.toggle('open');
+        }
+
+        function openKpiDetailModal() {
+            if (Object.keys(STATE.kpiDetailData).length === 0) {
+                alert("No hay datos de desglose para mostrar. Por favor, genere los reportes primero.");
+                return;
+            }
+            document.getElementById('kpiDetailModal').classList.remove('hidden');
+        }
+
+        function closeKpiDetailModal() {
+            document.getElementById('kpiDetailModal').classList.add('hidden');
+        }
+        function toggleTree(element) {
+            element.nextElementSibling.style.display = element.nextElementSibling.style.display === 'block' ? 'none' : 'block';
         }
 
         async function generateReportsFromState() {
@@ -816,21 +855,21 @@
             const COL_PROG_PRESUP = "Programa Presupuestario"; // Col F
             const COL_RAMO = "Ramo"; // Col G
             const COL_INDICADOR = "DENOMINACIÓN"; // Col A
-            const COL_UR = "Unidad Responsable (Unificada)";
+            const COL_UR = "Unidad Responsable (Unificada)"; // Col Z
             const COL_AVANCE_PCT = "Avance %";
             
             // REFACTORIZACIÓN: Asegurar que los cálculos de PCUM se apliquen siempre,
             // tanto para datos del estado como para archivos subidos.
             log("Asegurando que los datos para el reporte tengan las columnas PCUM calculadas...");
             const dataWithPcum = addPcumColumnsToData(STATE.reportData);
-
-            // --- KPI 1: Programas Presupuestarios Únicos y desglose por Ramo ---
+            
+            // --- Recolección de datos para todos los KPIs ---
             const programasUnicos = new Set();
+            const ramosUnicos = new Set();
+            let totalIndicadores = 0;
             const pcumDataByRamoAndUrType = {}; // { Ramo: { Dependencia: { ur: [pcums], ... }, Entidad: { ur: [pcums], ... } } }
-            const frecuenciaPorRamo = {}; // { 'Ramo1': 10, 'Ramo2': 5 }
-            const frecuenciaPorPrograma = {}; // { 'ProgA': 20, 'ProgB': 15 }
-            let totalFrecuenciaRamos = 0;
-            let totalFrecuenciaProgramas = 0;
+            STATE.kpiDetailData = {}; // Reset and rebuild data for the detail modal
+
             let sumaPcumDependencia = 0;
             let countPcumDependencia = 0;
 
@@ -839,31 +878,12 @@
                 const ramo = row[COL_RAMO];
                 const ur = row[COL_UR];
                 const pcum = row["PCUM"];
- 
-                // KPI 1: Contar programas únicos
-                if (programa && String(programa).trim() !== '') {
-                    programasUnicos.add(programa);
-                }
+                const tipoUR = row["Tipo UR"];
+                const indicador = row[COL_INDICADOR];
 
-                // KPI 2: Contar frecuencia por Ramo
-                if (ramo && String(ramo).trim() !== '') {
-                    frecuenciaPorRamo[ramo] = (frecuenciaPorRamo[ramo] || 0) + 1;
-                    totalFrecuenciaRamos++;
-                }
-
-                // KPI 3: Contar frecuencia por Programa Presupuestario
-                if (programa && String(programa).trim() !== '') {
-                    frecuenciaPorPrograma[programa] = (frecuenciaPorPrograma[programa] || 0) + 1;
-                    totalFrecuenciaProgramas++;
-                }
-
-                // KPI 4: Acumular PCUM
                 const pcumValue = parseFloat(pcum);
-
-                console.log(pcum, parseFloat(pcum));
                 
                 if (pcum !== "N/A" && !isNaN(pcumValue)) {
-                    const tipoUR = row["Tipo UR"];
                     if (tipoUR === 'Dependencia') {
                         sumaPcumDependencia += pcumValue;
                         countPcumDependencia++;
@@ -878,49 +898,47 @@
                         pcumDataByRamoAndUrType[ramo][tipoUR][ur].push(pcumValue);
                     }
                 }
+
+                // --- Llenar datos para KPIs principales y modal de desglose ---
+                if (indicador && String(indicador).trim() !== '') {
+                    totalIndicadores++;
+                    if (programa && String(programa).trim() !== '') programasUnicos.add(programa);
+                    if (ramo && String(ramo).trim() !== '') ramosUnicos.add(ramo);
+
+                    // --- Construir estructura para el modal de desglose ---
+                    if (ramo && tipoUR && ur && programa) {
+                        if (!STATE.kpiDetailData[ramo]) STATE.kpiDetailData[ramo] = { count: 0, tipos: {} };
+                        STATE.kpiDetailData[ramo].count++;
+
+                        if (!STATE.kpiDetailData[ramo].tipos[tipoUR]) STATE.kpiDetailData[ramo].tipos[tipoUR] = { count: 0, urs: {} };
+                        STATE.kpiDetailData[ramo].tipos[tipoUR].count++;
+
+                        if (!STATE.kpiDetailData[ramo].tipos[tipoUR].urs[ur]) STATE.kpiDetailData[ramo].tipos[tipoUR].urs[ur] = { count: 0, programas: {} };
+                        STATE.kpiDetailData[ramo].tipos[tipoUR].urs[ur].count++;
+
+                        if (!STATE.kpiDetailData[ramo].tipos[tipoUR].urs[ur].programas[programa]) STATE.kpiDetailData[ramo].tipos[tipoUR].urs[ur].programas[programa] = { count: 0, indicadores: [] };
+                        STATE.kpiDetailData[ramo].tipos[tipoUR].urs[ur].programas[programa].count++;
+
+                        STATE.kpiDetailData[ramo].tipos[tipoUR].urs[ur].programas[programa].indicadores.push({ nombre: indicador, pcum: pcum });
+                    }
+                }
             });
 
-            // --- Rellenar KPI 1 (Programas Únicos) ---
+            // --- Rellenar Tarjetas KPI Refactorizadas ---
+            // KPI 1: Programas Presupuestarios
             document.getElementById('kpiTotalProgramas').textContent = programasUnicos.size;
-            
-            const kpiProgramasPorRamoList = document.getElementById('kpiProgramasPorRamo');
-            kpiProgramasPorRamoList.innerHTML = '';
-            // Convertir el Set a un array, ordenarlo y mostrarlo.
-            const programasArray = Array.from(programasUnicos).sort();
-            programasArray.forEach(programa => {
-                const li = document.createElement('li');
-                li.textContent = programa;
-                kpiProgramasPorRamoList.appendChild(li);
-            });
 
-            // --- Rellenar KPI 2 (Frecuencia por Ramo) ---
-            document.getElementById('kpiFrecuenciaRamos').textContent = totalFrecuenciaRamos;
-            const kpiDesgloseRamosList = document.getElementById('kpiDesgloseRamos');
-            kpiDesgloseRamosList.innerHTML = '';
-            // Ordenar ramos por cantidad de indicadores (mayor a menor)
-            Object.entries(frecuenciaPorRamo)
-                .sort(([, a], [, b]) => b - a) // Ordena por valor (conteo) descendente
-                .forEach(([ramo, count]) => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<span class="font-semibold">${ramo}:</span> ${count} indicadores`;
-                    kpiDesgloseRamosList.appendChild(li);
-                });
+            // KPI 2: Total de Indicadores
+            document.getElementById('kpiTotalIndicadores').textContent = totalIndicadores;
 
-            // --- Rellenar KPI 3 (Frecuencia por Programa) ---
-            document.getElementById('kpiFrecuenciaProgramas').textContent = totalFrecuenciaProgramas;
-            const kpiDesgloseProgramasList = document.getElementById('kpiDesgloseProgramas');
-            kpiDesgloseProgramasList.innerHTML = '';
-            // Ordenar programas por cantidad de indicadores (mayor a menor)
-            Object.entries(frecuenciaPorPrograma)
-                .sort(([, a], [, b]) => b - a) // Ordena por valor (conteo) descendente
-                .forEach(([programa, count]) => {
-                    const li = document.createElement('li');
-                    const displayName = programa.length > 40 ? programa.substring(0, 37) + '...' : programa;
-                    li.innerHTML = `<span class="font-semibold" title="${programa}">${displayName}:</span> ${count} indicadores`;
-                    kpiDesgloseProgramasList.appendChild(li);
-                });
+            // KPI 3: Total de Ramos
+            document.getElementById('kpiTotalRamos').textContent = ramosUnicos.size;
 
-            // --- Rellenar KPI 5 (Cumplimiento Promedio - AoA) ---
+            // --- Construir el árbol de desglose para el modal ---
+            buildKpiDetailTree();
+
+
+            // --- Rellenar KPI 5 (Cumplimiento Promedio - AoA) - Lógica sin cambios ---
             const kpiPcumPorRamoAoAContainer = document.getElementById('kpiPcumPorRamoAoA');
             const urAverages = { Dependencia: [], Entidad: [] };
             const urAveragesByName = { Dependencia: {}, Entidad: {} };
@@ -1005,6 +1023,65 @@
                 });
 
             log("KPIs mostrados.", "success");
+        }
+
+        function buildKpiDetailTree() {
+            const container = document.getElementById('kpiDetailTreeContainer');
+            container.innerHTML = ''; // Limpiar contenido anterior
+            const data = STATE.kpiDetailData;
+
+            // Ordenar Ramos alfabéticamente
+            const sortedRamos = Object.keys(data).sort();
+
+            sortedRamos.forEach(ramo => {
+                const ramoNode = data[ramo];
+                let ramoHtml = `<div class="tree-item border-b border-gray-200 py-2">
+                    <div class="flex justify-between items-center cursor-pointer p-2 rounded hover:bg-gray-100" onclick="toggleTree(this)">
+                        <span class="font-bold text-gray-800"><i class="fa-solid fa-building-columns fa-fw mr-2 text-gray-400"></i>${ramo}</span>
+                        <span class="font-semibold text-gray-700 bg-gray-200 px-2 py-1 rounded-md">${ramoNode.count}</span>
+                    </div>
+                    <div class="tree-content pl-6 pt-2 space-y-1">`;
+
+                // Ordenar Tipos (Dependencia primero)
+                const sortedTipos = Object.keys(ramoNode.tipos).sort((a, b) => a === 'Dependencia' ? -1 : 1);
+
+                sortedTipos.forEach(tipo => {
+                    const tipoNode = ramoNode.tipos[tipo];
+                    const tipoColor = tipo === 'Dependencia' ? 'text-blue-600' : 'text-purple-600';
+                    ramoHtml += `<div class="tree-item">
+                        <div class="flex justify-between items-center cursor-pointer p-2 rounded hover:bg-gray-100" onclick="toggleTree(this)">
+                            <span class="font-semibold ${tipoColor}"><i class="fa-solid fa-layer-group fa-fw mr-2"></i>${tipo}</span>
+                            <span class="font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded-md">${tipoNode.count}</span>
+                        </div>
+                        <div class="tree-content pl-6 pt-2 space-y-1">`;
+
+                    Object.keys(tipoNode.urs).sort().forEach(ur => {
+                        const urNode = tipoNode.urs[ur];
+                        ramoHtml += `<div class="tree-item">
+                            <div class="flex justify-between items-center cursor-pointer p-2 rounded hover:bg-gray-100" onclick="toggleTree(this)">
+                                <span class="text-gray-700"><i class="fa-solid fa-landmark fa-fw mr-2 text-gray-400"></i>${ur}</span>
+                                <span class="text-sm text-gray-500 bg-gray-50 px-2 py-1 rounded-md">${urNode.count}</span>
+                            </div>
+                            <div class="tree-content pl-6 pt-2 space-y-1">`;
+
+                        Object.keys(urNode.programas).sort().forEach(programa => {
+                            const programaNode = urNode.programas[programa];
+                            ramoHtml += `<div class="tree-item">
+                                <div class="flex justify-between items-center cursor-pointer p-2 rounded hover:bg-gray-100" onclick="toggleTree(this)">
+                                    <span class="text-gray-600"><i class="fa-solid fa-bullseye fa-fw mr-2 text-gray-400"></i>${programa}</span>
+                                    <span class="text-xs text-gray-500">${programaNode.count}</span>
+                                </div>
+                                <div class="tree-content pl-8 pt-2 space-y-1 border-l-2 border-gray-200 ml-2">
+                                    ${programaNode.indicadores.map(ind => `<div class="flex justify-between items-center py-1"><span class="text-gray-600 pr-4">${ind.nombre}</span><span class="font-mono font-bold text-sm ${parseFloat(ind.pcum) >= 70 ? 'text-green-600' : (parseFloat(ind.pcum) >= 50 ? 'text-yellow-600' : 'text-red-600')}">${ind.pcum}</span></div>`).join('')}
+                                </div></div>`;
+                        });
+                        ramoHtml += `</div></div>`;
+                    });
+                    ramoHtml += `</div></div>`;
+                });
+                ramoHtml += `</div></div>`;
+                container.innerHTML += ramoHtml;
+            });
         }
 
         // === FILE HANDLING ===
