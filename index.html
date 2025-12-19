@@ -112,202 +112,146 @@
 
     <!-- Modal: Metodología PCUM (Refactorizado) -->
     <div id="pcumInfoModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-    <!-- Backdrop -->
-    <div onclick="togglePcumInfoModal()" class="modal-backdrop fixed inset-0 bg-black bg-opacity-60"></div>
-
-    <!-- Modal Content -->
-    <div class="modal-content relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden border-t-8"
-        style="border-top-color: var(--secondary-color);">
-        <!-- Header -->
-        <div class="flex justify-between items-start p-6 border-b">
-        <div class="flex items-center gap-4">
-            <div class="w-14 h-14 rounded-lg bg-gradient-to-br from-[#9C2348] to-[#A6802D] flex items-center justify-center shadow-md">
-            <i class="fa-solid fa-book-open text-white text-xl"></i>
+        <!-- Backdrop -->
+        <div onclick="togglePcumInfoModal()" class="modal-backdrop fixed inset-0 bg-black bg-opacity-60"></div>
+    
+        <!-- Modal Content -->
+        <div class="modal-content relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden border-t-8" style="border-top-color: var(--secondary-color);">
+            <!-- Header -->
+            <div class="flex justify-between items-start p-6 border-b">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-lg bg-gradient-to-br from-[var(--primary-color)] to-[var(--secondary-color)] flex items-center justify-center shadow-md">
+                        <i class="fa-solid fa-book-open text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-extrabold text-2xl text-gray-800">Metodología — Porcentaje de Cumplimiento de Metas (PCUM)</h2>
+                        <p class="text-sm text-gray-500 mt-1">Resumen ejecutivo y criterios de cálculo usados en la evaluación 2023.</p>
+                    </div>
+                </div>
+    
+                <div class="flex items-center gap-3">
+                    <button onclick="copyPcumText()" class="px-3 py-2 rounded-md bg-gray-100 hover:bg-gray-200 text-sm shadow-sm flex items-center gap-2 transition-colors">
+                        <i class="fa-regular fa-copy"></i> Copiar
+                    </button>
+                    <button onclick="printPcumModal()" class="px-3 py-2 rounded-md bg-gray-100 hover:bg-gray-200 text-sm shadow-sm flex items-center gap-2 transition-colors">
+                        <i class="fa-solid fa-print"></i> Imprimir
+                    </button>
+                    <button onclick="togglePcumInfoModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-semibold px-3 transition-colors" aria-label="Cerrar">
+                        &times;
+                    </button>
+                </div>
             </div>
-            <div>
-            <h2 class="font-extrabold text-2xl text-gray-800">Metodología — Porcentaje de Cumplimiento de Metas (PCUM)</h2>
-            <p class="text-sm text-gray-500 mt-1">Resumen ejecutivo y criterios de cálculo usados en la evaluación 2023.</p>
+    
+            <!-- Body -->
+            <div class="p-6 max-h-[70vh] overflow-y-auto">
+                <section class="mb-6">
+                    <h4 class="font-semibold text-lg text-[var(--accent-color)] mb-2">Propósito</h4>
+                    <p class="text-gray-700 leading-relaxed">Contar con una evaluación cuantitativa del cumplimiento de metas de los indicadores de desempeño por parte de las instituciones de la Administración Pública Federal.</p>
+                </section>
+    
+                <section class="mb-6 grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-sm text-gray-600 uppercase mb-2">Cobertura</h4>
+                        <p class="text-gray-700">El PCUM evalúa a las instituciones con programas presupuestarios que cuentan con metas establecidas en los Instrumentos de Seguimiento del Desempeño (ISD).</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-sm text-gray-600 uppercase mb-2">Fuentes de información</h4>
+                        <table class="w-full text-sm">
+                            <tbody>
+                                <tr class="border-b"><td class="py-2 font-medium text-gray-700">Fuente</td><td class="py-2 text-gray-600 text-right">Unidad de Evaluación del Desempeño - SHCP</td></tr>
+                                <tr><td class="py-2 font-medium text-gray-700">Producto</td><td class="py-2 text-gray-600 text-right">Base de datos del Avance de Indicadores (Pp).</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+    
+                <section class="mb-6">
+                    <h4 class="font-semibold text-lg text-[var(--primary-color)] mb-3">Criterios metodológicos</h4>
+                    <p class="text-gray-700">El PCUM se expresa como el grado de cumplimiento del indicador con respecto de la <strong>meta ajustada</strong>, acotando el valor entre <strong>0.0%</strong> y <strong>100.0%</strong>. Para indicadores cuyo cociente entre Meta Alcanzada y Meta Ajustada exceda 100%, el valor se acota a 100.0%; valores negativos se tratan como 0.0% antes de aplicar la penalización.</p>
+                </section>
+    
+                <section class="mb-6">
+                    <h4 class="font-semibold text-lg text-[var(--primary-color)] mb-3">Factor de Penalización</h4>
+                    <p class="text-gray-700">Se aplica un <strong>factor de penalización (P)</strong> por programación de metas. Indicadores con cumplimiento entre <strong>80.0% y 120.0%</strong> no reciben penalización. Para incumplimientos y sobrecumplimientos fuera de ese rango se disminuye la puntuación siguiendo la Tabla de Penalización.</p>
+                </section>
+    
+                <section class="mb-6">
+                    <h4 class="font-semibold text-lg text-gray-800 mb-3">Tabla 3 — Rangos de penalización</h4>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b"><th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">Rango</th><th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">Cumplimiento</th><th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">Penalización (p.p.)</th></tr>
+                            </thead>
+                            <tbody class="text-sm text-gray-700">
+                                <tr class="border-b"><td class="py-2 px-4">1</td><td class="py-2 px-4">0.0% - 79.9%</td><td class="py-2 px-4">-3</td></tr>
+                                <tr class="border-b"><td class="py-2 px-4">2</td><td class="py-2 px-4">80.0% - 120.0%</td><td class="py-2 px-4">0</td></tr>
+                                <tr class="border-b"><td class="py-2 px-4">3</td><td class="py-2 px-4">120.1% - 140.0%</td><td class="py-2 px-4">-3</td></tr>
+                                <tr class="border-b"><td class="py-2 px-4">4</td><td class="py-2 px-4">140.1% - 160.0%</td><td class="py-2 px-4">-6</td></tr>
+                                <tr class="border-b"><td class="py-2 px-4">5</td><td class="py-2 px-4">160.1% - 180.0%</td><td class="py-2 px-4">-9</td></tr>
+                                <tr class="border-b"><td class="py-2 px-4">6</td><td class="py-2 px-4">180.1% - 200.0%</td><td class="py-2 px-4">-12</td></tr>
+                                <tr class="border-b"><td class="py-2 px-4">7</td><td class="py-2 px-4">200.1% - 220.0%</td><td class="py-2 px-4">-15</td></tr>
+                                <tr class="border-b"><td class="py-2 px-4">8</td><td class="py-2 px-4">220.1% - 240.0%</td><td class="py-2 px-4">-18</td></tr>
+                                <tr class="border-b"><td class="py-2 px-4">9</td><td class="py-2 px-4">240.1% - 260.0%</td><td class="py-2 px-4">-21</td></tr>
+                                <tr class="border-b"><td class="py-2 px-4">10</td><td class="py-2 px-4">260.1% - 280.0%</td><td class="py-2 px-4">-24</td></tr>
+                                <tr class="border-b"><td class="py-2 px-4">11</td><td class="py-2 px-4">280.1% - 300.0%</td><td class="py-2 px-4">-27</td></tr>
+                                <tr class="border-b"><td class="py-2 px-4">12</td><td class="py-2 px-4">&gt; 300.0%</td><td class="py-2 px-4">-30</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+    
+                <section class="mt-6 p-5 rounded-xl bg-gray-50 border">
+                    <h4 class="font-semibold text-lg text-gray-800 mb-3">Fórmula de cálculo del PCUM</h4>
+                    <div class="text-center text-xl bg-white p-4 rounded-lg border shadow-sm">
+                        $$ \text{PCUM} = \frac{1}{n} \sum_{i=1}^{n} \left[ \left( \frac{\text{MA}_i}{\text{MJ}_i} \times 100 \right) - P_i \right] $$
+                    </div>
+                    <!-- MathJax -->
+                    <script>
+                        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+                    </script>
+                    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+                    <div class="mt-4 text-sm text-gray-700 grid md:grid-cols-2 gap-3">
+                        <p><strong>MA<sub>i</sub></strong>: Meta alcanzada del indicador <em>i</em></p>
+                        <p><strong>MJ<sub>i</sub></strong>: Meta ajustada del indicador <em>i</em></p>
+                        <p><strong>n</strong>: Número total de indicadores evaluados</p>
+                        <p><strong>P<sub>i</sub></strong>: Penalización por sobre/sub-cumplimiento</p>
+                    </div>
+                    <p class="mt-3 text-xs text-gray-500">El resultado se acota al intervalo 0–100 y posteriormente se ajusta mediante el factor de penalización.</p>
+                </section>
+    
+                <section class="my-6">
+                    <h4 class="font-semibold text-lg text-[var(--accent-color)] mb-3">Parámetros de evaluación</h4>
+                    <div class="grid sm:grid-cols-3 gap-4">
+                        <div class="p-4 rounded-lg border bg-gray-50 text-center"><p class="text-sm text-gray-600">Adecuado</p><p class="text-xl font-bold text-green-600 mt-1">PCUM &gt; 70.0</p></div>
+                        <div class="p-4 rounded-lg border bg-gray-50 text-center"><p class="text-sm text-gray-600">Regular</p><p class="text-xl font-bold text-yellow-600 mt-1">70.0 ≥ PCUM &gt; 50.0</p></div>
+                        <div class="p-4 rounded-lg border bg-gray-50 text-center"><p class="text-sm text-gray-600">Deficiente</p><p class="text-xl font-bold text-red-600 mt-1">PCUM &lt;= 50.0</p></div>
+                    </div>
+                </section>
+    
+                <section class="mb-2">
+                    <h4 class="font-semibold text-lg text-gray-800 mb-2">Ficha descriptiva del indicador</h4>
+                    <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
+                        <div>
+                            <p><span class="font-semibold">Pilar:</span> Eficiencia y Eficacia de la Gestión Gubernamental</p>
+                            <p><span class="font-semibold">Nombre:</span> Porcentaje de Cumplimiento de Metas (PCUM)</p>
+                            <p><span class="font-semibold">Unidad normativa:</span> Unidad de Control y Mejora de la APF</p>
+                        </div>
+                        <div>
+                            <p><span class="font-semibold">Dimensión / Sentido:</span> Eficacia / Ascendente</p>
+                            <p><span class="font-semibold">Unidad de medida / Frecuencia:</span> Porcentaje / Anual</p>
+                            <p><span class="font-semibold">Medio de verificación:</span> Cuenta Pública / Transparencia Presupuestaria</p>
+                        </div>
+                    </div>
+                </section>
+    
+                <div class="mt-6 flex justify-end gap-3">
+                    <button onclick="downloadPcumMethodology()" class="bg-[var(--accent-color)] text-white px-5 py-2 rounded-lg font-semibold shadow hover:opacity-95 flex items-center gap-2 transition-opacity">
+                        <i class="fa-solid fa-download"></i> Descargar Metodología (original)
+                    </button>
+                </div>
             </div>
         </div>
-
-        <div class="flex items-center gap-3">
-            <button onclick="copyPcumText()" class="px-3 py-2 rounded-md bg-gray-100 hover:bg-gray-200 text-sm shadow-sm flex items-center gap-2">
-            <i class="fa-regular fa-copy"></i> Copiar
-            </button>
-            <button onclick="printPcumModal()" class="px-3 py-2 rounded-md bg-gray-100 hover:bg-gray-200 text-sm shadow-sm flex items-center gap-2">
-            <i class="fa-solid fa-print"></i> Imprimir
-            </button>
-            <button onclick="togglePcumInfoModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-semibold px-3" aria-label="Cerrar">
-            &times;
-            </button>
-        </div>
-        </div>
-
-        <!-- Body -->
-        <div class="p-6 max-h-[70vh] overflow-y-auto">
-        <!-- Sección: Propósito / Cobertura -->
-        <section class="mb-6">
-            <h3 class="font-semibold text-lg text-[#1E5B4F] mb-2">Propósito</h3>
-            <p class="text-gray-700 leading-relaxed">Contar con una evaluación cuantitativa del cumplimiento de metas de los indicadores de desempeño por parte de las instituciones de la Administración Pública Federal.</p>
-        </section>
-
-        <section class="mb-6 grid md:grid-cols-2 gap-6">
-            <div>
-            <h4 class="font-semibold text-sm text-gray-600 uppercase mb-2">Cobertura</h4>
-            <p class="text-gray-700">El PCUM evalúa a las instituciones con programas presupuestarios que cuentan con metas establecidas en los Instrumentos de Seguimiento del Desempeño (ISD).</p>
-            </div>
-            <div>
-            <h4 class="font-semibold text-sm text-gray-600 uppercase mb-2">Fuentes de información</h4>
-            <table class="w-full text-sm">
-                <tbody>
-                <tr class="border-b">
-                    <td class="py-2 font-medium text-gray-700">Cuenta Pública y Transparencia Presupuestaria</td>
-                    <td class="py-2 text-gray-600 text-right">Unidad de Evaluación del Desempeño - SHCP</td>
-                </tr>
-                <tr>
-                    <td class="py-2 font-medium text-gray-700">Producto</td>
-                    <td class="py-2 text-gray-600 text-right">Base de datos del Avance de Indicadores de los Programas Presupuestarios (Pp).</td>
-                </tr>
-                </tbody>
-            </table>
-            </div>
-        </section>
-
-        <!-- Criterios metodológicos -->
-        <section class="mb-6">
-            <h4 class="font-semibold text-lg text-[#9C2348] mb-3">Criterios metodológicos</h4>
-            <div class="prose max-w-none text-gray-700">
-            <p>El PCUM se expresa como el grado de cumplimiento del indicador con respecto de la <strong>meta ajustada</strong>, acotando el valor entre <strong>0.0%</strong> y <strong>100.0%</strong>. Para indicadores cuyo cociente entre Meta Alcanzada y Meta Ajustada exceda 100%, el valor se acota a 100.0%; valores negativos se tratan como 0.0% antes de aplicar la penalización.</p>
-            </div>
-        </section>
-
-        <section class="mb-6">
-            <h4 class="font-semibold text-lg text-[#9C2348] mb-3">Factor de Penalización</h4>
-            <div class="prose max-w-none text-gray-700">
-            <p>Se aplica un <strong>factor de penalización (P)</strong> por programación de metas. Indicadores con cumplimiento entre <strong>80.0% y 120.0%</strong> no reciben penalización. Para incumplimientos y sobrecumplimientos fuera de ese rango se disminuye la puntuación siguiendo la Tabla de Penalización (ver tabla).</p>
-            </div>
-        </section>
-
-        <!-- Tabla 3: Rangos de penalización -->
-        <section class="mb-6">
-            <h4 class="font-semibold text-lg text-gray-800 mb-3">Tabla 3 — Rangos de penalización</h4>
-            <div class="overflow-x-auto">
-            <table class="min-w-full border-collapse">
-                <thead>
-                <tr class="bg-gray-50 border-b">
-                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">Rango</th>
-                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">Cumplimiento</th>
-                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">Penalización (puntos porcentuales)</th>
-                </tr>
-                </thead>
-                <tbody class="text-sm text-gray-700">
-                <tr class="border-b"><td class="py-2 px-4">1</td><td class="py-2 px-4">0.0% - 79.9%</td><td class="py-2 px-4">-3</td></tr>
-                <tr class="border-b"><td class="py-2 px-4">2</td><td class="py-2 px-4">80.0% - 120.0%</td><td class="py-2 px-4">0</td></tr>
-                <tr class="border-b"><td class="py-2 px-4">3</td><td class="py-2 px-4">120.1% - 140.0%</td><td class="py-2 px-4">-3</td></tr>
-                <tr class="border-b"><td class="py-2 px-4">4</td><td class="py-2 px-4">140.1% - 160.0%</td><td class="py-2 px-4">-6</td></tr>
-                <tr class="border-b"><td class="py-2 px-4">5</td><td class="py-2 px-4">160.1% - 180.0%</td><td class="py-2 px-4">-9</td></tr>
-                <tr class="border-b"><td class="py-2 px-4">6</td><td class="py-2 px-4">180.1% - 200.0%</td><td class="py-2 px-4">-12</td></tr>
-                <tr class="border-b"><td class="py-2 px-4">7</td><td class="py-2 px-4">200.1% - 220.0%</td><td class="py-2 px-4">-15</td></tr>
-                <tr class="border-b"><td class="py-2 px-4">8</td><td class="py-2 px-4">220.1% - 240.0%</td><td class="py-2 px-4">-18</td></tr>
-                <tr class="border-b"><td class="py-2 px-4">9</td><td class="py-2 px-4">240.1% - 260.0%</td><td class="py-2 px-4">-21</td></tr>
-                <tr class="border-b"><td class="py-2 px-4">10</td><td class="py-2 px-4">260.1% - 280.0%</td><td class="py-2 px-4">-24</td></tr>
-                <tr class="border-b"><td class="py-2 px-4">11</td><td class="py-2 px-4">280.1% - 300.0%</td><td class="py-2 px-4">-27</td></tr>
-                <tr class="border-b"><td class="py-2 px-4">12</td><td class="py-2 px-4">&gt; 300.0%</td><td class="py-2 px-4">-30</td></tr>
-                </tbody>
-            </table>
-            </div>
-        </section>
-
-        <!-- ===== Fórmula PCUM ===== -->
-        <section class="mt-6 p-5 rounded-xl bg-gray-50 border">
-        <h4 class="font-semibold text-lg text-gray-800 mb-3">
-            Fórmula de cálculo del PCUM
-        </h4>
-
-        <!-- Fórmula PCUM con LaTeX (MathJax) -->
-        <div class="text-center text-xl bg-white p-4 rounded-lg border shadow-sm">
-        $$ 
-        \text{PCUM}
-        =
-        \frac{1}{n}
-        \sum_{i=1}^{n}
-        \left[
-            \left(
-            \frac{MA_i}{MJ_i}
-            \times 100
-            \right)
-            -
-            P_i
-        \right]
-        $$
-        </div>
-
-        <!-- MathJax -->
-        <script>
-        window.MathJax = {
-            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
-        };
-        </script>
-        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-        <div class="mt-4 text-sm text-gray-700 grid md:grid-cols-2 gap-3">
-            <p><strong>MA<sub>i</sub></strong>: Meta alcanzada del indicador <em>i</em></p>
-            <p><strong>MJ<sub>i</sub></strong>: Meta ajustada del indicador <em>i</em></p>
-            <p><strong>n</strong>: Número total de indicadores evaluados</p>
-            <p><strong>P<sub>i</sub></strong>: Penalización por sobre / sub-cumplimiento (Tabla 3)</p>        
-        </div>
-
-        <p class="mt-3 text-xs text-gray-500">
-            El resultado se acota al intervalo 0–100 y posteriormente se ajusta mediante el
-            factor de penalización conforme a los rangos metodológicos.
-        </p>
-        </section>
-        <!-- ===== Fin Fórmula PCUM ===== -->
-
-        <!-- Parámetros de evaluación -->
-        <section class="mb-6">
-            <h4 class="font-semibold text-lg text-[#1E5B4F] mb-3">Parámetros de evaluación</h4>
-            <div class="grid sm:grid-cols-3 gap-4">
-            <div class="p-4 rounded-lg border bg-gray-50">
-                <p class="text-sm text-gray-600">Adecuado</p>
-                <p class="text-xl font-bold text-green-600 mt-1">PCUM &gt; 70.0</p>
-            </div>
-            <div class="p-4 rounded-lg border bg-gray-50">
-                <p class="text-sm text-gray-600">Regular</p>
-                <p class="text-xl font-bold text-yellow-600 mt-1">70.0 ≥ PCUM &gt; 50.0</p>
-            </div>
-            <div class="p-4 rounded-lg border bg-gray-50">
-                <p class="text-sm text-gray-600">Deficiente</p>
-                <p class="text-xl font-bold text-red-600 mt-1">PCUM &lt;= 50.0</p>
-            </div>
-            </div>
-        </section>
-
-        <!-- Ficha descriptiva -->
-        <section class="mb-2">
-            <h4 class="font-semibold text-lg text-gray-800 mb-2">Ficha descriptiva del indicador</h4>
-            <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
-            <div>
-                <p><span class="font-semibold">Pilar:</span> Eficiencia y Eficacia de la Gestión Gubernamental</p>
-                <p><span class="font-semibold">Nombre:</span> Porcentaje de Cumplimiento de Metas (PCUM)</p>
-                <p><span class="font-semibold">Unidad normativa:</span> Unidad de Control y Mejora de la Administración Pública Federal</p>
-            </div>
-            <div>
-                <p><span class="font-semibold">Dimensión / Sentido:</span> Eficacia / Ascendente</p>
-                <p><span class="font-semibold">Unidad de medida / Frecuencia:</span> Porcentaje / Anual</p>
-                <p><span class="font-semibold">Medio de verificación:</span> Cuenta Pública / Transparencia Presupuestaria</p>
-            </div>
-            </div>
-        </section>
-
-        <div class="mt-6 flex justify-end gap-3">
-            <!-- Mantener botón de descarga que ya usa tu app -->
-            <button onclick="downloadPcumMethodology()" class="bg-[#1E5B4F] text-white px-5 py-2 rounded-lg font-semibold shadow hover:opacity-95 flex items-center gap-2">
-            <i class="fa-solid fa-download"></i> Descargar Metodología (original)
-            </button>
-        </div>
-        </div>
-    </div>
     </div>
     <!-- ===== End Modal ===== -->
 
@@ -1124,7 +1068,7 @@
                 });
             });
 
-            // Para Dependencia, es el promedio simple de todos sus indicadores.
+            // Para Dependencia, es el promedio simple de todos sus indicadores (calculado previamente).
             const aoaDependencia = promedioPcumDependencia; 
             // Para Entidad, es el promedio de los promedios de cada UR de tipo Entidad.
             const aoaEntidad = urAverages.Entidad.length > 0 ? urAverages.Entidad.reduce((a, b) => a + b, 0) / urAverages.Entidad.length : 0;
