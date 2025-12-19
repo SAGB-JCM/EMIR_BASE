@@ -77,54 +77,37 @@
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
 
-    <!-- Modal: Acerca de la Herramienta (Refactorizado) -->
-    <div id="instructionsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <!-- Instructions Modal -->
+    <div id="instructionsModal" class="hidden fixed inset-0 z-50">
         <!-- Backdrop -->
         <div onclick="toggleInstructions()" class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
         <!-- Modal Content -->
-        <div class="modal-content relative bg-white rounded-lg shadow-xl w-full max-w-2xl mx-auto overflow-hidden border-t-8 border-[#9C2348]">
-            <!-- Header -->
-            <div class="flex justify-between items-center p-6 border-b">
-                <h2 class="font-bold text-2xl text-[#9C2348] flex items-center"><i class="fa-solid fa-rocket mr-3"></i>Acerca de la Herramienta</h2>
-                <button onclick="toggleInstructions()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-            </div>
-            <!-- Body -->
-            <div class="p-6 text-gray-700">
-                <p class="text-justify mb-6">
-                    Herramienta diseñada para facilitar el cálculo, análisis y validación de los indicadores Porcentaje de Cumplimiento de Metas de Desempeño (PCUM) 2024 y Desempeño de la Entrega de Productos de los Programas Presupuestarios en los que participa el Ente Público (DPP) 2024, mediante la extracción y procesamiento automatizado de metadatos provenientes de la información oficial publicada en la Cuenta Pública y en el Portal de Transparencia Presupuestaria. Su propósito es apoyar la evaluación objetiva del avance en metas, resultados y productos institucionales, fortaleciendo la rendición de cuentas y el seguimiento del desempeño gubernamental.
-                </p>
-            </div>
-            <!-- Footer -->
-            <div class="bg-gray-50 p-6 border-t">
-                <h3 class="font-semibold text-lg text-gray-600 mb-3">Detalles del Autor</h3>
-                <ul class="text-gray-600 space-y-2">
-                    <li><i class="fa-solid fa-user-pen w-5 mr-2 text-[#A6802D]"></i>Herramienta elaborada por <strong>José Cruz Gómez Rodríguez</strong></li>
-                    <li><i class="fa-solid fa-envelope w-5 mr-2 text-[#A6802D]"></i>Correo electrónico: <strong>josluigomez@gmail.com</strong></li>
-                    <li><i class="fa-solid fa-file-code w-5 mr-2 text-[#A6802D]"></i><strong>DC-620-2025</strong></li>
-                </ul>
-            </div>
+        <div class="modal-content relative bg-white rounded-lg shadow-xl p-8 m-4 max-w-lg mx-auto mt-20 border-t-4 border-[#A6802D]">
+            <h2 class="font-bold text-2xl mb-4 text-[#A6802D]"><i class="fa-solid fa-circle-info mr-2"></i>Información</h2>
+            <ol class="list-decimal list-inside text-gray-700 space-y-2">
+                <li>Herramienta elaborada por <strong>José Cruz Gómez Rodríguez</strong></li>
+                <li>Correo electrónico: <strong>josluigomez@gmail.com</strong></li>
+                <li><strong>DC-620-2025</strong></li>
+            </ol>
+            <button onclick="toggleInstructions()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
         </div>
     </div>
 
-    <!-- Modal: Metodología PCUM (Refactorizado) -->
-    <div id="pcumInfoModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <!-- PCUM Info Modal -->
+    <div id="pcumInfoModal" class="hidden fixed inset-0 z-50">
         <!-- Backdrop -->
         <div onclick="togglePcumInfoModal()" class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
         <!-- Modal Content -->
-        <div class="modal-content relative bg-white rounded-lg shadow-xl w-full max-w-lg mx-auto overflow-hidden border-t-8 border-[#A6802D]">
-            <!-- Header -->
-            <div class="flex justify-between items-center p-6 border-b">
-                <h2 class="font-bold text-2xl text-[#A6802D] flex items-center"><i class="fa-solid fa-book-open mr-3"></i>Metodología PCUM</h2>
-                <button onclick="togglePcumInfoModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-            </div>
-            <!-- Body -->
-            <div class="p-6 text-gray-700">
-                <p class="mb-6">La metodología usada para el cálculo se establece en el proyecto de Metodología de Evaluación de la Gestión Gubernamental 2023.</p>
-                <button onclick="downloadPcumMethodology()" class="bg-[#1E5B4F] text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition flex items-center gap-2 font-semibold">
-                    <i class="fa-solid fa-download"></i>
-                    <span>Descargar Metodología</span>
-                </button>
-            </div>
+        <div class="modal-content relative bg-white rounded-lg shadow-xl p-8 m-4 max-w-lg mx-auto mt-20 border-t-4 border-[#A6802D]">
+            <h2 class="font-bold text-2xl mb-4 text-[#A6802D]"><i class="fa-solid fa-circle-info mr-2"></i>Metodología de Cálculo PCUM</h2>
+            <p class="text-gray-700 space-y-2 mb-6">
+                La metodología usada para el cálculo se establece en el proyecto de Metodología de Evaluación de la Gestión Gubernamental 2023.
+            </p>
+            <button onclick="downloadPcumMethodology()" class="bg-[#1E5B4F] text-white px-4 py-2 rounded hover:bg-opacity-90 transition flex items-center gap-2">
+                <i class="fa-solid fa-download"></i>
+                <span>Descargar Metodología</span>
+            </button>
+            <button onclick="togglePcumInfoModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
         </div>
     </div>
 
@@ -258,6 +241,18 @@
             <h1 class="text-4xl font-bold text-[#9C2348] mb-4">
                 Evaluación de la Gestión Gubernamental 2024 (EEG)
             </h1>
+
+            <p class="text-gray-600 max-w-3xl text-justify">
+                Herramienta diseñada para facilitar el cálculo, análisis y validación de los
+                indicadores Porcentaje de Cumplimiento de Metas de Desempeño (PCUM) 2024 y
+                Desempeño de la Entrega de Productos de los Programas Presupuestarios en los
+                que participa el Ente Público (DPP) 2024, mediante la extracción y
+                procesamiento automatizado de metadatos provenientes de la información
+                oficial publicada en la Cuenta Pública y en el Portal de Transparencia
+                Presupuestaria. Su propósito es apoyar la evaluación objetiva del avance en
+                metas, resultados y productos institucionales, fortaleciendo la rendición
+                de cuentas y el seguimiento del desempeño gubernamental.
+            </p>
         </header>
 
         <!-- Tab Navigation -->
@@ -274,14 +269,16 @@
             </div>
         </div>
 
-        <!-- Tab Content: Consolidador MIR -->
-        <div id="emir" class="tab-content relative">
+        <!-- Tab Content -->
+        <div id="emir" class="tab-content">
 
-        <!-- Botón de Información Unificado (Acerca de) -->
-        <button onclick="toggleInstructions()" class="absolute -top-20 right-0 bg-white text-gray-500 p-3 rounded-full shadow-lg hover:shadow-xl hover:text-[#9C2348] transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#9C2348]" title="Acerca de la Herramienta">
+        <!-- Info Button -->
+        <div class="relative mb-8">
+            <button onclick="toggleInstructions()" class="absolute -top-20 right-0 bg-blue-100 text-blue-800 p-3 rounded-full shadow-md hover:bg-blue-200 transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500" title="Mostrar Instrucciones">
                 <i class="fa-solid fa-circle-info text-2xl"></i>
-        </button>
-
+            </button>
+        </div>
+        
         <!-- Input Section -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -397,9 +394,8 @@
 
         </div>
 
-        <!-- Tab Content: Reportes -->
-        <div id="reports" class="tab-content hidden relative">
-             <!-- Report Input Section -->
+        <div id="reports" class="tab-content hidden">
+            <!-- Report Input Section -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                     <!-- Opción 1: Usar resultado del consolidador -->
@@ -426,10 +422,13 @@
                 </div>
             </div>
 
-            <!-- Botón de Información Unificado (Metodología) -->
-            <button onclick="togglePcumInfoModal()" class="absolute -top-20 right-0 bg-white text-gray-500 p-3 rounded-full shadow-lg hover:shadow-xl hover:text-[#A6802D] transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#A6802D]" title="Ver metodología de cálculo PCUM">
-                <i class="fa-solid fa-book-open text-2xl"></i>
-            </button>
+            <!-- Report Display Area -->
+            <!-- PCUM Methodology Button -->
+            <div class="relative mb-4">
+                <button onclick="togglePcumInfoModal()" class="absolute -top-16 right-0 bg-blue-100 text-blue-800 p-3 rounded-full shadow-md hover:bg-blue-200 transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500" title="Ver metodología de cálculo PCUM">
+                    <i class="fa-solid fa-book-open text-2xl"></i>
+                </button>
+            </div>
 
             <div id="reportDisplayArea" class="hidden">
                 <h2 class="text-2xl font-bold text-gray-700 mb-6">Métricas Principales</h2>
@@ -498,35 +497,30 @@
                 </div>
 
                 <!-- KPI 5: Cumplimiento Promedio por Tipo de UR (NUEVA TARJETA) -->
-                <div id="kpiCard5" class="lg:col-span-3 bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transition-all duration-300" onclick="toggleKpiDetail('kpiDetail5')">
+                <div id="kpiCard5" class="lg:col-span-3 bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transition-all duration-300 border-l-4" onclick="toggleKpiDetail('kpiDetail5')">
                     <div class="p-5">
                         <div class="flex justify-between items-start">
                             <div>
                                 <p class="text-sm text-gray-500 uppercase">Cumplimiento Promedio por Tipo de UR</p>
-                                <p id="kpiAoAPcum" class="text-4xl font-bold">0.00</p>
+                                <p id="kpiAoAPcum" class="text-4xl font-bold text-[#9C2348]">0.00</p>
                             </div>
+                             <div class="text-right">
+                                <p class="text-xs text-gray-400">Dependencia</p>
+                                <p id="kpiAoADependenciaTotal" class="text-2xl font-bold text-blue-600">0.00</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-gray-400">Entidad</p>
+                                <p id="kpiAoAEntidadTotal" class="text-2xl font-bold text-purple-600">0.00</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center mt-1">
+                            <p class="text-xs text-gray-400">Promedio de promedios de las URs (clic para ver desglose).</p>
                             <span id="pcumAoAStatus" class="text-sm font-bold px-3 py-1 rounded-full"></span>
                         </div>
-                        <p class="text-xs text-gray-400 mt-1">Promedio de promedios de las URs (clic para ver desglose).</p>
                     </div>
                     <div id="kpiDetail5" class="kpi-card-detail bg-gray-50 border-t border-gray-200 px-5 py-3">
-                        <h4 class="font-bold text-sm mb-2 text-gray-600">Desglose del Cumplimiento Promedio</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h5 class="font-semibold text-blue-600 mb-1">Dependencias</h5>
-                                <p class="text-lg font-bold mb-2" id="kpiAoADependenciaTotal">0.00</p>
-                                <ul id="kpiAoADependenciaList" class="text-sm text-gray-700 space-y-1 max-h-48 overflow-y-auto border-t pt-2">
-                                    <!-- Lista de Dependencias y sus promedios -->
-                                </ul>
-                            </div>
-                            <div>
-                                <h5 class="font-semibold text-purple-600 mb-1">Entidades</h5>
-                                <p class="text-lg font-bold mb-2" id="kpiAoAEntidadTotal">0.00</p>
-                                <ul id="kpiAoAEntidadList" class="text-sm text-gray-700 space-y-1 max-h-48 overflow-y-auto border-t pt-2">
-                                    <!-- Lista de Entidades y sus promedios -->
-                                </ul>
-                            </div>
-                        </div>
+                        <h4 class="font-bold text-sm mb-2 text-gray-600">PCUM por Ramo y Tipo de UR (Promedio de URs)</h4>
+                        <div id="kpiPcumPorRamoAoA" class="text-sm text-gray-700 space-y-2 max-h-96 overflow-y-auto"></div>
                     </div>
                 </div>
             </div>
@@ -855,11 +849,16 @@
                 .sort(([ramoA], [ramoB]) => ramoA.localeCompare(ramoB))
                 .forEach(([ramo, urTypes]) => {
                     const ramoDiv = document.createElement('div');
-                    ramoDiv.className = 'p-2 border rounded bg-white';
-                    let ramoContent = `<h5 class="font-bold text-gray-800">${ramo}</h5>`;
+                    ramoDiv.className = 'p-2 border rounded bg-white shadow-sm';
+                    
+                    const allRamoPcums = [...Object.values(urTypes.Dependencia || {}).flat(), ...Object.values(urTypes.Entidad || {}).flat()];
+                    const ramoAvg = allRamoPcums.length > 0 ? allRamoPcums.reduce((a, b) => a + b, 0) / allRamoPcums.length : 0;
+
+                    let ramoContent = `<div class="flex justify-between items-center"><h5 class="font-bold text-gray-800">${ramo}</h5><span class="font-bold text-lg text-gray-700">${ramoAvg.toFixed(2)}</span></div>`;
 
                     ['Dependencia', 'Entidad'].forEach(tipo => {
                         if (Object.keys(urTypes[tipo] || {}).length > 0) {
+                            // Promedio simple de todos los indicadores para este tipo dentro del ramo
                             const urList = Object.entries(urTypes[tipo]).map(([ur, pcums]) => {
                                 const avg = pcums.reduce((a, b) => a + b, 0) / pcums.length;
                                 return { ur, avg };
@@ -891,6 +890,7 @@
                 });
 
             // --- Rellenar KPI 5 (Cumplimiento Promedio - AoA) ---
+            const kpiPcumPorRamoAoAContainer = document.getElementById('kpiPcumPorRamoAoA');
             const urAverages = { Dependencia: [], Entidad: [] };
             const urAveragesByName = { Dependencia: {}, Entidad: {} };
 
@@ -906,15 +906,15 @@
                 });
             });
 
-            // Para Dependencia, es el promedio simple general.
+            // Para Dependencia, es el promedio simple de todos sus indicadores.
             const aoaDependencia = promedioPcumDependencia; 
             // Para Entidad, es el promedio de los promedios de cada UR de tipo Entidad.
             const aoaEntidad = urAverages.Entidad.length > 0 ? urAverages.Entidad.reduce((a, b) => a + b, 0) / urAverages.Entidad.length : 0;
-            // El total es el promedio de los dos valores anteriores.
-            const aoaTotal = (aoaDependencia + aoaEntidad) / 2;
+            // El total es el promedio de los dos valores anteriores (si ambos existen).
+            const aoaTotal = (countPcumDependencia > 0 && urAverages.Entidad.length > 0) ? (aoaDependencia + aoaEntidad) / 2 : (aoaDependencia > 0 ? aoaDependencia : aoaEntidad);
 
             document.getElementById('kpiAoAPcum').textContent = aoaTotal.toFixed(2);
-            document.getElementById('kpiAoADependenciaTotal').textContent = aoaDependencia.toFixed(2);
+            document.getElementById('kpiAoADependenciaTotal').textContent = aoaDependencia > 0 ? aoaDependencia.toFixed(2) : 'N/A';
             document.getElementById('kpiAoAEntidadTotal').textContent = aoaEntidad.toFixed(2);
 
             // Lógica de colores y etiquetas para el KPI 5
@@ -922,31 +922,56 @@
             const pcumAoAStatus = document.getElementById('pcumAoAStatus');
             kpiCard5.classList.remove('border-green-500', 'border-yellow-500', 'border-red-500');
             if (aoaTotal >= 70) {
-                kpiCard5.classList.add('border-l-4', 'border-green-500');
+                kpiCard5.classList.add('border-green-500');
                 pcumAoAStatus.textContent = 'Adecuado';
                 pcumAoAStatus.className = 'text-sm font-bold px-3 py-1 rounded-full bg-green-100 text-green-800';
             } else if (aoaTotal >= 50) {
-                kpiCard5.classList.add('border-l-4', 'border-yellow-500');
+                kpiCard5.classList.add('border-yellow-500');
                 pcumAoAStatus.textContent = 'Regular';
                 pcumAoAStatus.className = 'text-sm font-bold px-3 py-1 rounded-full bg-yellow-100 text-yellow-800';
             } else {
-                kpiCard5.classList.add('border-l-4', 'border-red-500');
+                kpiCard5.classList.add('border-red-500');
                 pcumAoAStatus.textContent = 'Deficiente';
                 pcumAoAStatus.className = 'text-sm font-bold px-3 py-1 rounded-full bg-red-100 text-red-800';
             }
 
-            // Rellenar listas de desglose para KPI 5
-            const depList = document.getElementById('kpiAoADependenciaList');
-            depList.innerHTML = Object.entries(urAveragesByName.Dependencia)
-                .sort(([, avgA], [, avgB]) => avgB - avgA)
-                .map(([ur, avg]) => `<li class="flex justify-between"><span>${ur}</span><span class="font-medium">${avg.toFixed(2)}</span></li>`)
-                .join('');
+            // Rellenar desglose para KPI 5 (similar a KPI 4 pero con lógica AoA)
+            kpiPcumPorRamoAoAContainer.innerHTML = '';
+            Object.entries(pcumDataByRamoAndUrType)
+                .sort(([ramoA], [ramoB]) => ramoA.localeCompare(ramoB))
+                .forEach(([ramo, urTypes]) => {
+                    const ramoDiv = document.createElement('div');
+                    ramoDiv.className = 'p-2 border rounded bg-white shadow-sm';
+                    let ramoContent = '';
 
-            const entList = document.getElementById('kpiAoAEntidadList');
-            entList.innerHTML = Object.entries(urAveragesByName.Entidad)
-                .sort(([, avgA], [, avgB]) => avgB - avgA)
-                .map(([ur, avg]) => `<li class="flex justify-between"><span>${ur}</span><span class="font-medium">${avg.toFixed(2)}</span></li>`)
-                .join('');
+                    const depAvgs = Object.values(urTypes.Dependencia || {}).flat();
+                    const entAvgs = Object.values(urTypes.Entidad || {}).map(pcums => pcums.reduce((a, b) => a + b, 0) / pcums.length);
+                    const ramoDepAvg = depAvgs.length > 0 ? depAvgs.reduce((a, b) => a + b, 0) / depAvgs.length : 0;
+                    const ramoEntAvg = entAvgs.length > 0 ? entAvgs.reduce((a, b) => a + b, 0) / entAvgs.length : 0;
+                    const ramoTotalAvg = (ramoDepAvg > 0 && ramoEntAvg > 0) ? (ramoDepAvg + ramoEntAvg) / 2 : (ramoDepAvg > 0 ? ramoDepAvg : ramoEntAvg);
+
+                    ramoContent += `<div class="flex justify-between items-center"><h5 class="font-bold text-gray-800">${ramo}</h5><span class="font-bold text-lg text-gray-700">${ramoTotalAvg.toFixed(2)}</span></div>`;
+
+                    ['Dependencia', 'Entidad'].forEach(tipo => {
+                        if (Object.keys(urTypes[tipo] || {}).length > 0) {
+                            const urList = Object.entries(urTypes[tipo]).map(([ur, pcums]) => ({ ur, avg: pcums.reduce((a, b) => a + b, 0) / pcums.length })).sort((a, b) => b.avg - a.avg);
+                            const tipoAvg = (tipo === 'Dependencia') ? ramoDepAvg : ramoEntAvg;
+
+                            ramoContent += `
+                                <div class="mt-2 pl-4">
+                                    <div class="flex justify-between items-center cursor-pointer" onclick="toggleUrList(event)">
+                                        <span class="font-semibold ${tipo === 'Dependencia' ? 'text-blue-600' : 'text-purple-600'}">${tipo}</span>
+                                        <span class="font-bold text-lg">${tipoAvg.toFixed(2)}</span>
+                                    </div>
+                                    <ul class="hidden text-xs text-gray-600 mt-1 pl-4 border-l-2 space-y-1">
+                                        ${urList.map(item => `<li class="flex justify-between"><span>${item.ur}</span><span class="font-medium">${item.avg.toFixed(2)}</span></li>`).join('')}
+                                    </ul>
+                                </div>`;
+                        }
+                    });
+                    ramoDiv.innerHTML = ramoContent;
+                    kpiPcumPorRamoAoAContainer.appendChild(ramoDiv);
+                });
 
             log("KPIs mostrados.", "success");
         }
