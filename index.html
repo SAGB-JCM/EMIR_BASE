@@ -395,10 +395,14 @@
             <img src="https://github.com/SAGB-JCM/EMIR_BASE/blob/main/Gemini_Generated_Image_gfdjv0gfdjv0gfdj.png?raw=true" 
                 alt="Logo" class="w-24 h-24 mb-4 rounded-md shadow-lg">
 
-            <h1 class="text-4xl font-bold text-[#9C2348] mb-4">
-                Evaluación de la Gestión Gubernamental 2024 (EEG)
+            <h1 class="text-4xl font-bold text-[#9C2348] mb-2">
+                Evaluación de la Gestión Gubernamental (EGG) 2024
             </h1>
-        </header>
+            
+            <p class="text-lg font-medium text-gray-600 uppercase tracking-wide">
+                PCUM & DPP
+            </p>
+        </header>        
 
         <!-- Tab Navigation -->
         <div class="mb-8">
@@ -428,8 +432,12 @@
                 <!-- Parte 1: Descargar de Hacienda -->
                 <div class="border border-gray-200 rounded-lg p-6 bg-gray-50 text-center">
                     <i class="fa-solid fa-cloud-arrow-down text-4xl text-gray-400 mb-4"></i>
-                    <h3 class="font-bold mb-2">Paso 1: Obtener el archivo</h3>
-                    <p class="text-sm text-gray-600 mb-4">Seleccione el año y descargue el archivo ZIP oficial de la Cuenta Pública.</p>
+                    <h3 class="font-bold mb-2">Paso 1: Obtener las MIR de la Cuenta Pública</h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                    Este paso descarga automáticamente la documentación correspondiente a los
+                    Indicadores para Resultados por Programa Presupuestario, en su
+                    clasificación administrativa, contenida en el Tomo III de la Cuenta Pública.
+                    </p>
                     <div class="flex gap-2 justify-center">
                         <select id="yearSelector" class="border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-[#1E5B4F]">
                             <option value="2024">2024</option>
@@ -463,8 +471,13 @@
                 <!-- Parte 3: Descargar Indicadores -->
                 <div class="border border-gray-200 rounded-lg p-6 bg-gray-50 text-center">
                     <i class="fa-solid fa-cloud-arrow-down text-4xl text-gray-400 mb-4"></i>
-                    <h3 class="font-bold mb-2">Paso 3: Obtener Archivo de Indicadores</h3>
-                    <p class="text-sm text-gray-600 mb-4">Descargue el archivo CSV con el avance de indicadores del año seleccionado.</p>
+                    <h3 class="font-bold mb-2">Paso 3: Obtener el Avance de Indicadores Reportado en Transparencia Presupuestaria</h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                    Este paso obtiene la base de datos de Avance de Indicadores publicada en la
+                    plataforma de Transparencia Presupuestaria, la cual reporta el cumplimiento
+                    de las metas de los programas presupuestarios a través del avance de sus
+                    indicadores.
+                    </p>
                     <button onclick="openIndicadoresDownloadLink()" class="bg-[#1E5B4F] text-white px-4 py-2 rounded hover:bg-opacity-90 transition flex items-center gap-2 mx-auto">
                         <i class="fa-solid fa-download"></i>
                         <span>Descargar CSV de Indicadores</span>
